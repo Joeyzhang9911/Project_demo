@@ -1,0 +1,53 @@
+from django.urls import path
+from .views import (
+    AdminUserListView,
+    AdminTeamListView,
+    AdminTeamMembersView,
+    AdminKickMemberView,
+    AdminUpdateRoleView,
+    LogEducationInteractionView,
+    LogActionInteractionView,
+    EducationViewCountView,
+    ActionViewCountView,
+    UserInteractionsView,
+    TopEducationsView,
+    TopActionsView,
+    TopEducationSDGsView,
+    TopActionSDGsView,
+    AdminGetSDGPlansView,
+    AdminGetSDGPlansCountView,
+)
+
+urlpatterns = [
+    path("users/", AdminUserListView.as_view(), name="adminUserList"),
+    path("teams/", AdminTeamListView.as_view(), name="adminTeamList"),
+    path("teams/<int:team_id>/members/",
+         AdminTeamMembersView.as_view(), name="adminTeamMembers"),
+    path("teams/<int:team_id>/kick/",
+         AdminKickMemberView.as_view(), name="adminTeamKick"),
+    path("teams/<int:team_id>/updateRole/",
+         AdminUpdateRoleView.as_view(), name="adminTeamUpdateRole"),
+
+    path("log/education/", LogEducationInteractionView.as_view(),
+         name="logEducationInteraction"),
+    path("log/action/", LogActionInteractionView.as_view(),
+         name="logActionInteraction"),
+
+    path("viewcount/education/<int:education_id>/",
+         EducationViewCountView.as_view(), name="educationViewCount"),
+    path("viewcount/action/<int:action_id>/",
+         ActionViewCountView.as_view(), name="actionViewCount"),
+    path("user/<int:user_id>/userInteractions/",
+         UserInteractionsView.as_view(), name="userInteractions"),
+    path("analytics/educations/top/",
+         TopEducationsView.as_view(), name="topEducations"),
+    path("analytics/actions/top/", TopActionsView.as_view(), name="topActions"),
+    path("analytics/educations/top-sdgs/",
+         TopEducationSDGsView.as_view(), name="topEducationSdgs"),
+    path("analytics/actions/top-sdgs/",
+         TopActionSDGsView.as_view(), name="topActionSdgs"),
+
+    path("sdg-plans/", AdminGetSDGPlansView.as_view(), name="allSDGPlans"),
+    path("sdg-plans/count/",
+         AdminGetSDGPlansCountView.as_view(), name="allSDGPlansCount"),
+]
