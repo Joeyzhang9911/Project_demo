@@ -20,6 +20,9 @@ class UserProfile(models.Model):
         max_length=(255*21),  # 255 * 20 character bookmarks ids, plus commas
         default=[]
     )
+    gender = models.CharField(max_length=20, blank=True, null=True)
+    language = models.CharField(max_length=50, blank=True, null=True)
+    positions = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"

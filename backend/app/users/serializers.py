@@ -104,11 +104,17 @@ class ProfileSerializer(serializers.ModelSerializer):
         allow_blank=True, allow_null=True, required=False)
     faculty_and_major = serializers.CharField(
         allow_blank=True, allow_null=True, required=False)
+    gender = serializers.CharField(
+        allow_blank=True, allow_null=True, required=False)
+    language = serializers.CharField(
+        allow_blank=True, allow_null=True, required=False)
+    positions = serializers.CharField(
+        allow_blank=True, allow_null=True, required=False)
 
     class Meta:
         model = UserProfile
         fields = ['username', 'email', 'first_name', 'last_name', 'mobile',
-                  'organization', 'faculty_and_major']
+                  'organization', 'faculty_and_major', 'gender', 'language', 'positions']
 
     def update(self, instance, validated_data):
         user_data = validated_data.pop('user', {})
@@ -124,6 +130,9 @@ class ProfileSerializer(serializers.ModelSerializer):
             'organization', instance.organization)
         instance.faculty_and_major = validated_data.get(
             'faculty_and_major', instance.faculty_and_major)
+        instance.gender = validated_data.get('gender', instance.gender)
+        instance.language = validated_data.get('language', instance.language)
+        instance.positions = validated_data.get('positions', instance.positions)
         instance.save()
 
         return instance
