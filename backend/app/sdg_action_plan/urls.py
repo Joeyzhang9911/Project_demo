@@ -5,6 +5,9 @@ from .views import (
     SDGActionPlanRetrieveView,
     SDGActionPlanUpdateView,
     SDGActionPlanDeleteView,
+    ActionPlanPermissionsView,
+    ActionPlanEditorsView,
+    ActionPlanViewersView,
 )
 
 urlpatterns = [
@@ -23,4 +26,15 @@ urlpatterns = [
     # anyone can delete the plan on the team
     path('<int:id>/delete/', SDGActionPlanDeleteView.as_view(),
          name='action-plan-delete'),
+    
+    # 新增权限管理路由
+    # POST /api/sdg-action-plan/<int:id>/permissions/ 更新表单权限设置
+    path('<int:id>/permissions/', ActionPlanPermissionsView.as_view(),
+         name='action-plan-permissions'),
+    # GET/POST /api/sdg-action-plan/<int:id>/editors/ 管理编辑者列表
+    path('<int:id>/editors/', ActionPlanEditorsView.as_view(),
+         name='action-plan-editors'),
+    # GET/POST /api/sdg-action-plan/<int:id>/viewers/ 管理查看者列表
+    path('<int:id>/viewers/', ActionPlanViewersView.as_view(),
+         name='action-plan-viewers'),
 ]
