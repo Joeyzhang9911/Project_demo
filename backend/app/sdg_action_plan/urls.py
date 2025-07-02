@@ -8,6 +8,7 @@ from .views import (
     ActionPlanPermissionsView,
     ActionPlanEditorsView,
     ActionPlanViewersView,
+    ActionPlanTeamMembersView,
 )
 
 urlpatterns = [
@@ -37,4 +38,7 @@ urlpatterns = [
     # GET/POST /api/sdg-action-plan/<int:id>/viewers/ 管理查看者列表
     path('<int:id>/viewers/', ActionPlanViewersView.as_view(),
          name='action-plan-viewers'),
+    # GET /api/sdg-action-plan/<int:id>/team-members/ 获取团队成员列表
+    path('<int:id>/team-members/', ActionPlanTeamMembersView.as_view(),
+         name='action-plan-team-members'),
 ]

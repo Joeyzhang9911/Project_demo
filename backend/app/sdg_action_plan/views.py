@@ -198,53 +198,12 @@ class ActionPlanPermissionsView(generics.GenericAPIView):
         
         action_plan.save()
         
-        return Response({
-            "message": "Permissions updated successfully.",
-            "allow_team_edit": action_plan.allow_team_edit,
-            "allow_team_view": action_plan.allow_team_view,
-            "require_explicit_permissions": action_plan.require_explicit_permissions
-        }, status=status.HTTP_200_OK)
+        return Response({"message": "Permissions updated successfully"})
 
 
 class ActionPlanEditorsView(generics.GenericAPIView):
     """管理表单编辑者列表的视图"""
     permission_classes = [IsTeamOwnerOrAdmin]
-    
-    def post(self, request, *args, **kwargs):
-        """添加或移除编辑者"""
-        action_plan_id = kwargs.get('id')
-        action = request.data.get('action')  # 'add' 或 'remove'
-        user_ids = request.data.get('user_ids', [])
-        
-        try:
-            action_plan = SDGActionPlan.objects.get(id=action_plan_id)
-        except SDGActionPlan.DoesNotExist:
-            return Response(
-                {"message": "Action plan not found."}, 
-                status=status.HTTP_404_NOT_FOUND
-            )
-        
-        # 检查权限
-        self.check_object_permissions(request, action_plan)
-        
-        if action == 'add':
-            users = User.objects.filter(id__in=user_ids)
-            action_plan.editors.add(*users)
-            message = f"Added {len(users)} users as editors."
-        elif action == 'remove':
-            users = User.objects.filter(id__in=user_ids)
-            action_plan.editors.remove(*users)
-            message = f"Removed {len(users)} users from editors."
-        else:
-            return Response(
-                {"message": "Invalid action. Use 'add' or 'remove'."}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        return Response({
-            "message": message,
-            "editors": list(action_plan.editors.values_list('username', flat=True))
-        }, status=status.HTTP_200_OK)
     
     def get(self, request, *args, **kwargs):
         """获取编辑者列表"""
@@ -257,31 +216,21 @@ class ActionPlanEditorsView(generics.GenericAPIView):
                 {"message": "Action plan not found."}, 
                 status=status.HTTP_404_NOT_FOUND
             )
-        
-        # 检查权限
-        self.check_object_permissions(request, action_plan)
-        
+            
+        # 获取编辑者列表
         editors = action_plan.editors.all()
-        editor_data = [{
+        
+        # 格式化数据
+        data = [{
             'id': editor.id,
-            'username': editor.username,
             'email': editor.email
         } for editor in editors]
         
-        return Response({
-            "editors": editor_data
-        }, status=status.HTTP_200_OK)
-
-
-class ActionPlanViewersView(generics.GenericAPIView):
-    """管理表单查看者列表的视图"""
-    permission_classes = [IsTeamOwnerOrAdmin]
+        return Response({'data': data}, status=status.HTTP_200_OK)
     
     def post(self, request, *args, **kwargs):
-        """添加或移除查看者"""
+        """更新编辑者列表"""
         action_plan_id = kwargs.get('id')
-        action = request.data.get('action')  # 'add' 或 'remove'
-        user_ids = request.data.get('user_ids', [])
         
         try:
             action_plan = SDGActionPlan.objects.get(id=action_plan_id)
@@ -290,28 +239,30 @@ class ActionPlanViewersView(generics.GenericAPIView):
                 {"message": "Action plan not found."}, 
                 status=status.HTTP_404_NOT_FOUND
             )
-        
+            
         # 检查权限
         self.check_object_permissions(request, action_plan)
         
-        if action == 'add':
+        # 获取请求数据
+        action = request.data.get('action')
+        user_ids = request.data.get('user_ids', [])
+        
+        if action == 'set':
+            # 设置新的编辑者列表
+            action_plan.editors.clear()
             users = User.objects.filter(id__in=user_ids)
-            action_plan.viewers.add(*users)
-            message = f"Added {len(users)} users as viewers."
-        elif action == 'remove':
-            users = User.objects.filter(id__in=user_ids)
-            action_plan.viewers.remove(*users)
-            message = f"Removed {len(users)} users from viewers."
+            action_plan.editors.add(*users)
+            return Response({'message': 'Editors updated successfully'}, status=status.HTTP_200_OK)
         else:
             return Response(
-                {"message": "Invalid action. Use 'add' or 'remove'."}, 
+                {"message": "Invalid action."}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
-        return Response({
-            "message": message,
-            "viewers": list(action_plan.viewers.values_list('username', flat=True))
-        }, status=status.HTTP_200_OK)
+
+
+class ActionPlanViewersView(generics.GenericAPIView):
+    """管理表单查看者列表的视图"""
+    permission_classes = [IsTeamOwnerOrAdmin]
     
     def get(self, request, *args, **kwargs):
         """获取查看者列表"""
@@ -324,17 +275,77 @@ class ActionPlanViewersView(generics.GenericAPIView):
                 {"message": "Action plan not found."}, 
                 status=status.HTTP_404_NOT_FOUND
             )
-        
-        # 检查权限
-        self.check_object_permissions(request, action_plan)
-        
+            
+        # 获取查看者列表
         viewers = action_plan.viewers.all()
-        viewer_data = [{
+        
+        # 格式化数据
+        data = [{
             'id': viewer.id,
-            'username': viewer.username,
             'email': viewer.email
         } for viewer in viewers]
         
-        return Response({
-            "viewers": viewer_data
-        }, status=status.HTTP_200_OK)
+        return Response({'data': data}, status=status.HTTP_200_OK)
+    
+    def post(self, request, *args, **kwargs):
+        """更新查看者列表"""
+        action_plan_id = kwargs.get('id')
+        
+        try:
+            action_plan = SDGActionPlan.objects.get(id=action_plan_id)
+        except SDGActionPlan.DoesNotExist:
+            return Response(
+                {"message": "Action plan not found."}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+        # 检查权限
+        self.check_object_permissions(request, action_plan)
+        
+        # 获取请求数据
+        action = request.data.get('action')
+        user_ids = request.data.get('user_ids', [])
+        
+        if action == 'set':
+            # 设置新的查看者列表
+            action_plan.viewers.clear()
+            users = User.objects.filter(id__in=user_ids)
+            action_plan.viewers.add(*users)
+            return Response({'message': 'Viewers updated successfully'}, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {"message": "Invalid action."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class ActionPlanTeamMembersView(generics.GenericAPIView):
+    """获取团队成员列表的视图"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request, *args, **kwargs):
+        """获取团队成员列表"""
+        action_plan_id = kwargs.get('id')
+        
+        try:
+            action_plan = SDGActionPlan.objects.get(id=action_plan_id)
+        except SDGActionPlan.DoesNotExist:
+            return Response(
+                {"message": "Action plan not found."}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+        # 获取团队成员
+        team_members = TeamMember.objects.filter(
+            team=action_plan.team,
+            is_pending=False
+        ).select_related('user')
+        
+        # 格式化数据
+        data = [{
+            'id': member.user.id,
+            'email': member.user.email,
+            'role': member.role
+        } for member in team_members]
+        
+        return Response({'data': data}, status=status.HTTP_200_OK)
