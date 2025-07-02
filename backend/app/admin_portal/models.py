@@ -1,25 +1,9 @@
 from django.db import models
+
+from django.db import models
 from django.contrib.auth.models import User
 from sdg_education.models import EducationDb
 from sdg_actions.models import ActionDb
-
-# Model for global settings
-class GlobalSettings(models.Model):
-    key = models.CharField(max_length=100, unique=True)
-    value = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    @classmethod
-    def get_setting(cls, key, default=None):
-        try:
-            setting = cls.objects.get(key=key)
-            return setting.value
-        except cls.DoesNotExist:
-            return default
-
-    def __str__(self):
-        return f"{self.key}: {self.value}"
 
 #Model for interactions between users and education pages
 class EducationInteraction(models.Model):

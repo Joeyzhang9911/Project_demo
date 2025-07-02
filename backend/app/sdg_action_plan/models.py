@@ -16,7 +16,7 @@ class SDGActionPlan(models.Model):
     name_of_designers = models.TextField(blank=True)
     impact_project_name = models.CharField(max_length=255, blank=True)
     description = models.TextField(blank=True)
-    plan_content = models.JSONField(default=dict)
+    plan_content = models.JSONField()
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default='draft')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -28,18 +28,6 @@ class SDGActionPlan(models.Model):
     # each action plan only belongs to one team
     team = models.ForeignKey(
         Team, on_delete=models.CASCADE, related_name='action_plans')
-
-    editors = models.ManyToManyField(
-        User, related_name='editable_action_plans', blank=True)
-    
-    # 新增权限控制字段
-    viewers = models.ManyToManyField(
-        User, related_name='viewable_action_plans', blank=True)
-    
-    # 权限控制设置
-    allow_team_edit = models.BooleanField(default=True, help_text="允许团队成员编辑")
-    allow_team_view = models.BooleanField(default=True, help_text="允许团队成员查看")
-    require_explicit_permissions = models.BooleanField(default=False, help_text="需要明确权限设置")
 
     def __str__(self):
         return f"Action Plan: {self.impact_project_name} by {self.user.username}"

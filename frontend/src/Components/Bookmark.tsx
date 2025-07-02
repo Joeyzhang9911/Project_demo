@@ -113,7 +113,7 @@ const Bookmark = ({ bookmarkTitle, bookmarkType, sdgGoalNumbers, onClick, onDele
             <img 
             key={index} 
             src={sdgGoal(sdg)}
-            alt={`SDG ${sdg}`}
+            alt='SDG Image'
             style={{
               width: '40px',
               objectFit: 'contain',

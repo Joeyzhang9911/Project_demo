@@ -18,6 +18,8 @@ const SignUpForm = () => {
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [agreedTerms, setAgreedTerms] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState<string[]>([]);
 
@@ -27,7 +29,18 @@ const SignUpForm = () => {
   
   // API Call Here
   const signup = async () => {
-    const data = await apiCallPost('api/auth/pending-register/', { username, email, password1: password, password2: confirmPassword, mobile: phoneNumber }, false);
+    if (!agreedTerms) {
+      setErrorMessage(['You must agree to the Terms and Conditions to sign up.']);
+      return;
+    }
+    const data = await apiCallPost('api/auth/pending-register/', {
+      username,
+      email,
+      password1: password,
+      password2: confirmPassword,
+      mobile: phoneNumber,
+      agreed_terms: agreedTerms
+    }, false);
     if (data.token) {
       navigate('/confirmation-pin', {
         state: {
@@ -129,6 +142,26 @@ const SignUpForm = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
         <FormControlLabel
+          control={
+            <Checkbox
+              size="small"
+              checked={agreedTerms}
+              onChange={(e) => setAgreedTerms(e.target.checked)}
+            />
+          }
+          label={
+            <span style={{ fontSize: '0.75rem' }}>
+              I have read and agree to the&nbsp;
+              <span
+                style={{ color: '#1976d2', textDecoration: 'underline', cursor: 'pointer' }}
+                onClick={() => setShowTerms(true)}
+              >
+                Terms and Conditions
+              </span>
+            </span>
+          }
+        />
+        <FormControlLabel
           sx={{ m: 0, '& .MuiFormControlLabel-label': { fontSize: '0.75rem' } }}
           control={
             <Checkbox
@@ -142,7 +175,7 @@ const SignUpForm = () => {
 
         <Button
           variant='contained'
-          size='small' 
+          size='small'
           sx={{
             backgroundColor: '#000000',
             width: '85%',
@@ -151,6 +184,7 @@ const SignUpForm = () => {
             boxShadow: 'none'
           }}
           onClick={signup}
+          disabled={!agreedTerms}
         >
           Sign Up
         </Button>
@@ -190,6 +224,29 @@ const SignUpForm = () => {
         </div>
 
       </Box>
+
+      {showTerms && (
+        <Box
+          sx={{
+            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
+          }}
+          onClick={() => setShowTerms(false)}
+        >
+          <Box
+            sx={{
+              backgroundColor: 'white', padding: 3, borderRadius: 2, maxWidth: 500, maxHeight: '80vh', overflowY: 'auto'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <Typography variant="h6" gutterBottom>Terms and Conditions</Typography>
+            <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>
+              By using this website, you agree that your activities on the website may be recorded for the purpose of improving our services, ensuring security, and complying with legal requirements. Your data will be handled in accordance with our privacy policy. You must agree to these terms and conditions to create a profile. If you do not agree, you will not be able to register or use certain features of the website.
+            </Typography>
+            <Button onClick={() => setShowTerms(false)} sx={{ mt: 2 }} variant="contained" size="small">Close</Button>
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };

@@ -20,9 +20,6 @@ class UserProfile(models.Model):
         max_length=(255*21),  # 255 * 20 character bookmarks ids, plus commas
         default=[]
     )
-    gender = models.CharField(max_length=20, blank=True, null=True)
-    language = models.CharField(max_length=50, blank=True, null=True)
-    positions = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
@@ -40,13 +37,15 @@ def save_user_profile(sender, instance, **kwargs):
 
 ### Pending user model before email is confirmed
 class PendingUser(models.Model):
-    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+   
+    token = models.CharField(max_length=36, unique=True)
     username = models.CharField(max_length=150)
     email = models.EmailField()
     password = models.CharField(max_length=128)
     mobile = models.CharField(max_length=10, blank=True, null=True)
     code = models.CharField(max_length=8)
     created_at = models.DateTimeField(auto_now_add=True)
+    agreed_terms = models.BooleanField(default=False)
 
     def is_expired(self):
         return timezone.now() > self.created_at + timedelta(minutes=5)

@@ -46,7 +46,10 @@ const ConfirmationPin = () => {
   const verifyPin = async () => {
     const tokenToUse = pendingUserToken || initialToken;
     const data = await apiCallPost('api/auth/register/', { token: tokenToUse, code: pin }, false);
-    if (data.token) {
+    console.log('tokenToUse:', tokenToUse, 'pin:', pin);
+    console.log('register response:', data); 
+
+    if (data && data.token) {
       localStorage.setItem('token', data.token);
       localStorage.setItem('url', getUrl());
       localStorage.setItem('token-expiry', data.expiry)
@@ -54,7 +57,11 @@ const ConfirmationPin = () => {
       navigate('/');
     } else {
       setAlertSeverity('error');
-      setErrorMessage('Invalid or expired verification code.');
+      setErrorMessage(
+        data && data.error
+          ? data.error
+          : 'Invalid or expired verification code.'
+      );
     }
   }
 

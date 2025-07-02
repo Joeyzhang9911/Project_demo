@@ -57,6 +57,9 @@ const SignUp = () => {
             >
               Login
             </Button>
+            <Typography variant='body2' sx={{ color: 'white', textAlign: 'center', fontSize: '0.85rem', mt: 1 }}>
+              To create an account, you must agree to our Terms and Conditions.
+            </Typography>
           </Box>
           <SignUpForm />
         </Box>

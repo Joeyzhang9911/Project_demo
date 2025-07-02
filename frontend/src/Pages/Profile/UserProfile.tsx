@@ -20,11 +20,6 @@ const UserProfile = () => {
   const [number, setNumber] = useState('');
   const [organisation, setOrganisation] = useState('');
   const [facultyMajor, setFacultyMajor] = useState('');
-  const [gender, setGender] = useState('');
-  const [language, setLanguage] = useState('');
-  const [positions, setPositions] = useState('');
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [initialFirstName, setInitialFirstName] = useState('');
   const [initialLastName, setInitialLastName] = useState('');
@@ -32,9 +27,6 @@ const UserProfile = () => {
   const [initialNumber, setInitialNumber] = useState('');
   const [initialOrganisation, setInitialOrganisation] = useState('');
   const [initialFacultyMajor, setInitialFacultyMajor] = useState('');
-  const [initialGender, setInitialGender] = useState('');
-  const [initialLanguage, setInitialLanguage] = useState('');
-  const [initialPositions, setInitialPositions] = useState('');
   
   const [editing, setEditing] = useState(false);
   
@@ -42,23 +34,6 @@ const UserProfile = () => {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   const [key, setKey] = useState(0);
-
-  const validateProfileForm = () => {
-    const newErrors: Record<string, string> = {};
-  
-    if (!firstName?.trim()) newErrors.firstName = 'First name is required';
-    if (!lastName?.trim()) newErrors.lastName = 'Last name is required';
-    if (!email?.trim()) newErrors.email = 'Email is required';
-    if (!username?.trim()) newErrors.username = 'Username is required';
-    if (!organisation?.trim()) newErrors.organisation = 'Organisation is required';
-    if (!facultyMajor?.trim()) newErrors.facultyMajor = 'Faculty & Major is required';
-    if (!gender?.trim()) newErrors.gender = 'Gender is required';
-    if (!language?.trim()) newErrors.language = 'Language is required';
-  
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-  
 
   useEffect(() => {
     const getData = async () => {
@@ -77,28 +52,17 @@ const UserProfile = () => {
       setNumber(data.mobile);
       setOrganisation(data.organization);
       setFacultyMajor(data.faculty_and_major);
-      setGender(data.gender || '');
-      setLanguage(data.language || '');
-      setPositions(data.positions || '');
-
       setInitialFirstName(data.first_name);
       setInitialLastName(data.last_name);
       setInitialEmail(data.email);
       setInitialNumber(data.mobile);
       setInitialOrganisation(data.organization);
       setInitialFacultyMajor(data.faculty_and_major);
-      setInitialGender(data.gender || '');
-      setInitialLanguage(data.language || '');
-      setInitialPositions(data.positions || '');
     }
     fetchData();
   }, [targetUsername])
-
-  
   
   const updateUserDetails = async () => {
-    if (!validateProfileForm()) return;
-
     const updatedData = {
       username: username,
       first_name: firstName,
@@ -106,10 +70,7 @@ const UserProfile = () => {
       email: email,
       mobile: number,
       organization: organisation,
-      faculty_and_major: facultyMajor,
-      gender,
-      language,
-      positions,
+      faculty_and_major: facultyMajor
     };
     
     const data = await apiCallPut('api/auth/profile/', updatedData, true);
@@ -120,9 +81,6 @@ const UserProfile = () => {
     setInitialNumber(data.mobile);
     setInitialOrganisation(data.organization);
     setInitialFacultyMajor(data.faculty_and_major);
-    setInitialGender(data.gender);
-    setInitialLanguage(data.language);
-    setInitialPositions(data.positions);
 
     // If all details can be saved
     toggleEditing();
@@ -141,9 +99,6 @@ const UserProfile = () => {
     setNumber(initialNumber);
     setOrganisation(initialOrganisation);
     setFacultyMajor(initialFacultyMajor);
-    setGender(initialGender);
-    setLanguage(initialLanguage);
-    setPositions(initialPositions);
 
     setKey(prev => prev + 1);
 
@@ -184,49 +139,33 @@ const UserProfile = () => {
             justifyContent: 'flex-start'
           }}>
             <InputField 
-              name='Username *' 
+              name='Username' 
               value={username} 
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
               editing={false}
               noDefault
-              error={!!errors.Username}
-              helperText={errors.Username || ''} 
             />
             <InputField 
-              name='First Name *' 
+              name='First Name' 
               value={firstName} 
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)}
+              onChange={(e) => setFirstName(e.target.value)}
               editing={editing}
+              key={key}
               noDefault
-              error={!!errors.firstName}
-              helperText={errors.firstName || ''} 
             />
             <InputField 
-              name='Last Name *' 
+              name='Last Name' 
               value={lastName} 
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)}
+              onChange={(e) => setLastName(e.target.value)}
               editing={editing}
               noDefault
-              error={!!errors.lastName}
-              helperText={errors.lastName || ''} 
             />
             <InputField 
-              name='Email *' 
+              name='Email' 
               value={email} 
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               editing={editing}
               noDefault
-              error={!!errors.email}
-              helperText={errors.email || ''} 
-            />
-            <InputField
-              name='Gender *'
-              value={gender} 
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setGender(e.target.value)} 
-              editing={editing} 
-              noDefault 
-              error={!!errors.gender}
-              helperText={errors.gender || ''} 
             />
           </Box>
           
@@ -243,43 +182,23 @@ const UserProfile = () => {
             <InputField 
               name='Phone Number' 
               value={number} 
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNumber(e.target.value)}
+              onChange={(e) => setNumber(e.target.value)}
               editing={editing}
               noDefault
             />
             <InputField 
-              name='Organisation *' 
+              name='Organisation' 
               value={organisation} 
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOrganisation(e.target.value)}
+              onChange={(e) => setOrganisation(e.target.value)}
               editing={editing}
               noDefault
-              error={!!errors.organisation}
-              helperText={errors.organisation || ''} 
             />
             <InputField 
-              name='Faculty and Major *' 
+              name='Faculty and Major' 
               value={facultyMajor} 
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFacultyMajor(e.target.value)}
+              onChange={(e) => setFacultyMajor(e.target.value)}
               editing={editing}
               noDefault
-              error={!!errors.facultyMajor}
-              helperText={errors.facultyMajor || ''} 
-            />
-            <InputField
-              name='Language *'
-              value={language} 
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLanguage(e.target.value)} 
-              editing={editing} 
-              noDefault 
-              error={!!errors.language}
-              helperText={errors.language || ''} 
-            />
-            <InputField
-              name='Positions'
-              value={positions} 
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPositions(e.target.value)} 
-              editing={editing} 
-              noDefault 
             />
             <Box 
               sx={{ 
