@@ -11,6 +11,9 @@ from .views import (
     UpdateInvitePermissionsView,
     InviteMembersView,
     UsersView,
+    EmailInviteView,
+    AcceptEmailInvitationView,
+    UpdateTeamMaxMembersView,
 )
 
 urlpatterns = [
@@ -24,5 +27,8 @@ urlpatterns = [
     path('<int:team_id>/leave/', LeaveTeamView.as_view(), name='leaveTeam'),
     path('<int:team_id>/invite-permissions/', UpdateInvitePermissionsView.as_view(), name='updateInvitePermissions'),
     path('<int:team_id>/invite/', InviteMembersView.as_view(), name='inviteMembers'),
+    path('<int:team_id>/email-invite/', EmailInviteView.as_view(), name='emailInvite'),
+    path('accept-invitation/<str:token>/', AcceptEmailInvitationView.as_view(), name='acceptEmailInvitation'),
     path('users/', UsersView.as_view(), name='usersList'),
+    path('<int:team_id>/update-max-members/', UpdateTeamMaxMembersView.as_view(), name='updateTeamMaxMembers'),
 ]

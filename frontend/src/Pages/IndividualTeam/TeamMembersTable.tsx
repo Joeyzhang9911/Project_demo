@@ -13,6 +13,7 @@ import TextBox from '../../Components/TextBox';
 import { Roles } from './TeamRole';
 import { Box, Container } from '@mui/material';
 import TeamInviteModal from './TeamInviteModal';
+import TeamEmailInviteModal from './TeamEmailInviteModal';
 import TeamDeleteModal from './TeamDeleteModal';
 import { apiCallGet } from '../../Utilities/ApiCalls';
 import TeamLeave from './TeamLeave';
@@ -48,10 +49,19 @@ export const createData = (
   return { username, role, roleString };
 }
 
-const TeamMembersTable = ({ permission, teamId, groupName, setPermission }: 
-  { permission: ITeamRole, teamId: string, groupName: string,
-    setPermission: React.Dispatch<React.SetStateAction<ITeamRole>> }) => {
+interface Props {
+  permission: ITeamRole;
+  teamId: number | string;
+  groupName: string;
+  setPermission: React.Dispatch<React.SetStateAction<ITeamRole>>;
+}
+
+const TeamMembersTable = ({ permission, teamId, groupName, setPermission }: Props) => {
   const baseUrl = 'api/teams/' + teamId;
+  
+  // 确保teamId是字符串类型
+  const stringTeamId = String(teamId);
+
   const [rows, setRows] = React.useState<Data[]>([]);
   const [windowWidth, setWindowWidth] = React.useState(window.innerWidth);
 
@@ -134,42 +144,33 @@ const TeamMembersTable = ({ permission, teamId, groupName, setPermission }:
   }
 
   return (
-    <>
-    <Box sx={{
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      flexWrap: 'wrap',
-      rowGap: '24px',
-      columnGap: '24px',
-    }}>
-      {/* Search bar */}
-      <TextBox onChange={(e) => setSearchQuery(e.target.value)} placeholder={"Search for people"} disableWidthChange/>
-      {/* Team interactions */}
-      <Container disableGutters sx={{
+    <Box>
+      <Container sx={{
         display: 'flex',
         flexDirection: 'row',
-        width: 'auto',
-        columnGap: '24px',
-        flexWrap: 'wrap',
-        rowGap: '24px',
+        justifyContent: 'flex-end',
+        gap: '10px',
+        marginBottom: '20px'
       }}>
         {/* Displays list of forms associated with team */}
-        <TeamFormsModal teamId={teamId}/>
+        <TeamFormsModal teamId={stringTeamId}/>
         {/* Displays invite modal if you have invite permissions */}
         { permission.title !== TeamRoles.Member.title &&
-          <TeamInviteModal name={groupName} teamId={teamId} addInvitee={addInvitees} />
+          <TeamInviteModal name={groupName} teamId={stringTeamId} addInvitee={addInvitees} />
+        }
+        {/* Displays email invite modal if you have email invite permissions */}
+        { permission.title === TeamRoles.SiteAdmin.title ||
+          permission.title === TeamRoles.TeamOwner.title ?
+          <TeamEmailInviteModal name={groupName} teamId={stringTeamId} addInvitee={addInvitees} /> : null
         }
         {/* Displays delete modal if you have delete team permissions */}
         { (permission.title === TeamRoles.SiteAdmin.title ||
           permission.title === TeamRoles.TeamOwner.title) &&
-          <TeamDeleteModal name={groupName} teamId={teamId} />
+          <TeamDeleteModal name={groupName} teamId={stringTeamId} />
         }
         {/* Team leave options */}
-        <TeamLeave teamId={teamId} selfRole={permission} />
+        <TeamLeave teamId={stringTeamId} selfRole={permission} />
       </Container>
-    </Box>
     {/* Table container */}
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <TableContainer sx={{ maxHeight: 680 }}>
@@ -240,7 +241,7 @@ const TeamMembersTable = ({ permission, teamId, groupName, setPermission }:
                         targetRole={TeamRoles.Map(Roles[row.roleString as keyof typeof Roles])}
                         selfRole={permission} 
                         update={(rows: Data[], permission?: ITeamRole) => updateRowsFn(rows, permission)}
-                        teamId={teamId}/>
+                          teamId={stringTeamId}/>
                     </TableCell>
                   </TableRow>
                 );
@@ -260,7 +261,7 @@ const TeamMembersTable = ({ permission, teamId, groupName, setPermission }:
         {...windowWidth < 388 && {labelRowsPerPage: 'Rows'}}
       />
     </Paper>
-    </>
+    </Box>
   );
 }
 
