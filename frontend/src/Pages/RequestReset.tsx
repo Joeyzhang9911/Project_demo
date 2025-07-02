@@ -17,17 +17,22 @@ export default function ForgotPasswordEmail() {
   const sendCode = async () => {
     setError('')
     setInfo('')
-    const res = await apiCallPost(
-      'api/auth/password-reset/request/',
-      { email },
-      false
-    )
-    if (res.token) {
-      navigate('/forgot-password/verify', {
-        state: { email, token: res.token }
-      })
-    } else {
-        setError(res.error || 'Please check if you have entered a valid email.')
+    try {
+      const res = await apiCallPost(
+        'api/auth/password-reset/request/',
+        { email },
+        false
+      )
+      if (res && res.token) {
+        navigate('/forgot-password/verify', {
+          state: { email, token: res.token }
+        })
+      } else {
+        setError(res?.error || 'Please check if you have entered a valid email.')
+      }
+    } catch (error) {
+      console.error('Send code error:', error)
+      setError('An unexpected error occurred. Please try again.')
     }
   }
 

@@ -5,6 +5,9 @@ from .views import (
     SDGActionPlanRetrieveView,
     SDGActionPlanUpdateView,
     SDGActionPlanDeleteView,
+    SDGActionPlanGoogleDocsView,
+    GoogleOAuthInitView,
+    GoogleOAuthCallbackView,
 )
 
 urlpatterns = [
@@ -23,4 +26,10 @@ urlpatterns = [
     # anyone can delete the plan on the team
     path('<int:id>/delete/', SDGActionPlanDeleteView.as_view(),
          name='action-plan-delete'),
+    path('<int:id>/google-docs/', SDGActionPlanGoogleDocsView.as_view(), name='action-plan-google-docs'),
+    
+    # OAuth endpoints
+    path('auth/google/init/', GoogleOAuthInitView.as_view(), name='google-oauth-init'),
+    path('auth/google/callback/', GoogleOAuthCallbackView.as_view(), name='google-oauth-callback'),
 ]
+
