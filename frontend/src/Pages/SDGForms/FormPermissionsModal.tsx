@@ -26,28 +26,23 @@ import {
 import { Close as CloseIcon, Add as AddIcon, Remove as RemoveIcon } from '@mui/icons-material';
 import { apiCallGet, apiCallPost } from '../../Utilities/ApiCalls';
 
+interface TeamMember {
+  id: number;
+  email: string;
+  role: string;
+}
+
+interface FormPermissions {
+  allow_team_edit: boolean;
+  allow_team_view: boolean;
+  require_explicit_permissions: boolean;
+}
+
 interface FormPermissionsModalProps {
   open: boolean;
   onClose: () => void;
   formId: string;
-  initialPermissions?: {
-    allow_team_edit: boolean;
-    allow_team_view: boolean;
-    require_explicit_permissions: boolean;
-  };
-}
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-}
-
-interface TeamMember {
-  id: number;
-  username: string;
-  email: string;
-  role: string;
+  initialPermissions?: FormPermissions;
 }
 
 const FormPermissionsModal: React.FC<FormPermissionsModalProps> = ({
@@ -60,247 +55,249 @@ const FormPermissionsModal: React.FC<FormPermissionsModalProps> = ({
     require_explicit_permissions: false,
   },
 }) => {
-  const [permissions, setPermissions] = useState(initialPermissions);
-  const [editors, setEditors] = useState<User[]>([]);
-  const [viewers, setViewers] = useState<User[]>([]);
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [originalEditors, setOriginalEditors] = useState<User[]>([]);
+  const [permissions, setPermissions] = useState<FormPermissions>(initialPermissions);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [selectedEditors, setSelectedEditors] = useState<number[]>([]);
+  const [selectedViewers, setSelectedViewers] = useState<number[]>([]);
+  const [dataLoading, setDataLoading] = useState(false);
 
   useEffect(() => {
     setPermissions(initialPermissions);
-  }, [initialPermissions]);
-
-  useEffect(() => {
     if (open && formId) {
-      loadPermissionsData();
+      console.log('Loading data for form:', formId);
+      loadData();
     }
-  }, [open, formId]);
+  }, [initialPermissions, open, formId]);
 
-  const loadPermissionsData = async () => {
-    setLoading(true);
-    setError(null);
-    
+  const loadData = async () => {
+    setDataLoading(true);
     try {
-      // Load form basic information (including permission settings)
-      const formData = await apiCallGet(`api/sdg-action-plan/${formId}/`, true);
-      if (formData.statusCode === 200) {
-        setPermissions({
-          allow_team_edit: formData.allow_team_edit ?? true,
-          allow_team_view: formData.allow_team_view ?? true,
-          require_explicit_permissions: formData.require_explicit_permissions ?? false,
-        });
+      // 获取团队成员列表
+      console.log('Fetching team members...');
+      const teamMembersResponse = await apiCallGet(`api/sdg-action-plan/${formId}/team-members/`, true);
+      console.log('Team members response:', teamMembersResponse);
+      if (teamMembersResponse?.statusCode === 200 && teamMembersResponse.data) {
+        setTeamMembers(teamMembersResponse.data);
       }
 
-      // Load editors list
-      const editorsData = await apiCallGet(`api/sdg-action-plan/${formId}/editors/`, true);
-      if (editorsData.statusCode === 200) {
-        setEditors(editorsData.editors || []);
-        setOriginalEditors(editorsData.editors || []);
+      // 获取当前编辑者列表
+      console.log('Fetching editors...');
+      const editorsResponse = await apiCallGet(`api/sdg-action-plan/${formId}/editors/`, true);
+      console.log('Editors response:', editorsResponse);
+      if (editorsResponse?.statusCode === 200 && editorsResponse.data) {
+        const editorIds = editorsResponse.data.map((editor: TeamMember) => editor.id);
+        console.log('Editor IDs:', editorIds);
+        setSelectedEditors(editorIds);
       }
 
-      // Load viewers list
-      const viewersData = await apiCallGet(`api/sdg-action-plan/${formId}/viewers/`, true);
-      if (viewersData.statusCode === 200) {
-        setViewers(viewersData.viewers || []);
+      // 获取当前查看者列表
+      console.log('Fetching viewers...');
+      const viewersResponse = await apiCallGet(`api/sdg-action-plan/${formId}/viewers/`, true);
+      console.log('Viewers response:', viewersResponse);
+      if (viewersResponse?.statusCode === 200 && viewersResponse.data) {
+        const viewerIds = viewersResponse.data.map((viewer: TeamMember) => viewer.id);
+        console.log('Viewer IDs:', viewerIds);
+        setSelectedViewers(viewerIds);
       }
-
-      // Load team members list (for selecting editors and viewers)
-      const teamData = await apiCallGet(`api/teams/${formData.team}/members/`, true);
-      if (teamData.statusCode === 200) {
-        // Convert team member data format
-        const members = teamData.members || [];
-        const formattedMembers = members.map((member: any) => ({
-          id: member.user.id,
-          username: member.user.username,
-          email: member.user.email,
-          role: member.role
-        }));
-        setTeamMembers(formattedMembers);
-      }
-
-    } catch (err) {
-      setError('Failed to load permissions data');
-      console.error('Error loading permissions:', err);
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      setMessage({ type: 'error', text: 'Failed to load team members and permissions' });
     }
+    setDataLoading(false);
   };
 
-  const handleChange = (name: keyof typeof permissions) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (name: keyof FormPermissions) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setPermissions(prev => ({
       ...prev,
       [name]: event.target.checked,
     }));
   };
 
+  const handleEditorChange = (userId: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      setSelectedEditors(prev => [...prev, userId]);
+    } else {
+      setSelectedEditors(prev => prev.filter(id => id !== userId));
+    }
+  };
+
+  const handleViewerChange = (userId: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      setSelectedViewers(prev => [...prev, userId]);
+    } else {
+      setSelectedViewers(prev => prev.filter(id => id !== userId));
+    }
+  };
+
   const handleSave = async () => {
     setLoading(true);
     try {
-      const response = await apiCallPost(`api/sdg-action-plan/${formId}/permissions/`, permissions, true);
-      if (response.statusCode === 200) {
-        setMessage({ type: 'success', text: 'Permissions updated successfully' });
-        setTimeout(() => {
-          onClose();
-          setMessage(null);
-        }, 1500);
-      } else {
-        setMessage({ type: 'error', text: response.message || 'Failed to update permissions' });
+      console.log('Saving permissions:', permissions);
+      // Save basic permissions
+      const permissionsResponse = await apiCallPost(`api/sdg-action-plan/${formId}/permissions/`, permissions, true);
+      console.log('Permissions response:', permissionsResponse);
+      if (permissionsResponse.statusCode !== 200) {
+        throw new Error('Failed to update permissions');
       }
+
+      console.log('Saving editors:', selectedEditors);
+      // Save editors
+      const editorsResponse = await apiCallPost(`api/sdg-action-plan/${formId}/editors/`, {
+        action: 'set',
+        user_ids: selectedEditors
+      }, true);
+      console.log('Editors response:', editorsResponse);
+      if (editorsResponse.statusCode !== 200) {
+        throw new Error('Failed to update editors');
+      }
+
+      console.log('Saving viewers:', selectedViewers);
+      // Save viewers
+      const viewersResponse = await apiCallPost(`api/sdg-action-plan/${formId}/viewers/`, {
+        action: 'set',
+        user_ids: selectedViewers
+      }, true);
+      console.log('Viewers response:', viewersResponse);
+      if (viewersResponse.statusCode !== 200) {
+        throw new Error('Failed to update viewers');
+      }
+
+      setMessage({ type: 'success', text: 'Permissions updated successfully' });
+      setTimeout(() => {
+        onClose();
+        setMessage(null);
+      }, 1500);
     } catch (error) {
-      setMessage({ type: 'error', text: 'An error occurred while updating permissions' });
+      console.error('Error saving permissions:', error);
+      setMessage({ type: 'error', text: 'Failed to update permissions' });
     }
     setLoading(false);
   };
 
-  // 过滤掉已经是编辑者的团队成员
-  const availableEditors = teamMembers.filter(
-    member => !editors.some(editor => editor.id === member.id)
-  );
-
-  // 过滤掉已经是查看者的团队成员
-  const availableViewers = teamMembers.filter(
-    member => !viewers.some(viewer => viewer.id === member.id)
-  );
+  console.log('Current state:', {
+    teamMembers,
+    selectedEditors,
+    selectedViewers,
+    permissions,
+    dataLoading
+  });
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6">
-            Permission Settings
-          </Typography>
-          <IconButton onClick={onClose}>
-            <CloseIcon />
-          </IconButton>
-        </Box>
-      </DialogTitle>
-
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Permission Settings</DialogTitle>
       <DialogContent>
-        {loading ? (
-          <Box display="flex" justifyContent="center" p={3}>
-            <CircularProgress />
-          </Box>
-        ) : error ? (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        ) : (
-          <>
-            <Typography variant="h6" gutterBottom>
-              Team Permission Settings
-            </Typography>
-            
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={permissions.allow_team_edit}
-                  onChange={handleChange('allow_team_edit')}
-                />
-              }
-              label="Allow team members to edit"
-            />
-            
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={permissions.allow_team_view}
-                  onChange={handleChange('allow_team_view')}
-                />
-              }
-              label="Allow team members to view"
-            />
-            
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={permissions.require_explicit_permissions}
-                  onChange={handleChange('require_explicit_permissions')}
-                />
-              }
-              label="Require explicit permissions for team members"
-            />
-            
-            <Alert severity="info" sx={{ mt: 2, mb: 2 }}>
-              <Typography variant="body2">
-                <strong>Note:</strong> Team owners and form creators always have full access. 
-                When explicit permissions are enabled, only selected members can edit the form.
-              </Typography>
-            </Alert>
-            
-            {permissions.require_explicit_permissions && (
-              <>
-                <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-                  Select Editors
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  Choose team members who can edit this form:
-                </Typography>
-                <FormGroup>
-                  {teamMembers.map((member) => (
-                    <FormControlLabel
-                      key={member.id}
-                      control={
-                        <Checkbox
-                          checked={editors.some(editor => editor.id === member.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setEditors(prev => [...prev, member]);
-                            } else {
-                              setEditors(prev => prev.filter(editor => editor.id !== member.id));
-                            }
-                          }}
-                        />
-                      }
-                      label={`${member.username} (${member.role})`}
-                    />
-                  ))}
-                </FormGroup>
-                
-                <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-                  Select Viewers
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  Choose team members who can view this form:
-                </Typography>
-                <FormGroup>
-                  {teamMembers.map((member) => (
-                    <FormControlLabel
-                      key={member.id}
-                      control={
-                        <Checkbox
-                          checked={viewers.some(viewer => viewer.id === member.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setViewers(prev => [...prev, member]);
-                            } else {
-                              setViewers(prev => prev.filter(viewer => viewer.id !== member.id));
-                            }
-                          }}
-                        />
-                      }
-                      label={`${member.username} (${member.role})`}
-                    />
-                  ))}
-                </FormGroup>
-              </>
-            )}
-          </>
-        )}
-      </DialogContent>
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+            Team Permission Settings
+          </Typography>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={permissions.allow_team_edit}
+                onChange={handleChange('allow_team_edit')}
+              />
+            }
+            label="Allow team members to edit"
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={permissions.allow_team_view}
+                onChange={handleChange('allow_team_view')}
+              />
+            }
+            label="Allow team members to view"
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={permissions.require_explicit_permissions}
+                onChange={handleChange('require_explicit_permissions')}
+              />
+            }
+            label="Require explicit permissions for team members"
+          />
 
+          <Alert severity="info" sx={{ mt: 2, mb: 2 }}>
+            Team owners and form creators always have full access. When explicit permissions are enabled, only selected members can edit the form.
+          </Alert>
+
+          {permissions.require_explicit_permissions && (
+            <>
+              {dataLoading ? (
+                <Box display="flex" justifyContent="center" p={3}>
+                  <CircularProgress />
+                </Box>
+              ) : teamMembers.length > 0 ? (
+                <>
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Select Editors
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      Choose team members who can edit this form:
+                    </Typography>
+                    <FormGroup>
+                      {teamMembers.map((member) => (
+                        <FormControlLabel
+                          key={member.id}
+                          control={
+                            <Checkbox
+                              checked={selectedEditors.includes(member.id)}
+                              onChange={handleEditorChange(member.id)}
+                            />
+                          }
+                          label={`${member.email} (${member.role})`}
+                        />
+                      ))}
+                    </FormGroup>
+                  </Box>
+
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Select Viewers
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      Choose team members who can view this form:
+                    </Typography>
+                    <FormGroup>
+                      {teamMembers.map((member) => (
+                        <FormControlLabel
+                          key={member.id}
+                          control={
+                            <Checkbox
+                              checked={selectedViewers.includes(member.id)}
+                              onChange={handleViewerChange(member.id)}
+                            />
+                          }
+                          label={`${member.email} (${member.role})`}
+                        />
+                      ))}
+                    </FormGroup>
+                  </Box>
+                </>
+              ) : (
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  No team members available to assign permissions.
+                </Alert>
+              )}
+            </>
+          )}
+
+          {message && (
+            <Alert severity={message.type} sx={{ mt: 2 }}>
+              {message.text}
+            </Alert>
+          )}
+        </Box>
+      </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={loading}>
           Cancel
         </Button>
-        <Button 
-          onClick={handleSave} 
-          variant="contained" 
-          disabled={loading}
-        >
+        <Button onClick={handleSave} variant="contained" color="primary" disabled={loading}>
           Save Changes
         </Button>
       </DialogActions>
