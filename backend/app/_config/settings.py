@@ -193,9 +193,20 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 
 GOOGLE_CLIENT_ID = "457383923915-pcoes829lbarn628vjh78r9lpqitclu7.apps.googleusercontent.com"
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'unswsdgknowledgesystem@gmail.com'
-EMAIL_HOST_PASSWORD = 'hohx auae gpkv fwxq'
+# Email settings
+if DEBUG:
+    # 在开发环境中使用控制台后端
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    # 在生产环境中使用 SMTP 后端
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = 'unswsdgknowledgesystem@gmail.com'
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+
+EMAIL_SUBJECT_PREFIX = '[SDG Knowledge System] '
+
+# Site URL for email invitations
+SITE_URL = os.environ.get('SITE_URL', 'http://localhost:3000')
