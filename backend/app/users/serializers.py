@@ -116,6 +116,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['username', 'email', 'first_name', 'last_name', 'mobile',
                   'organization', 'faculty_and_major', 'gender', 'language', 'positions']
 
+    def validate_mobile(self, mobile):
+        if mobile and not re.fullmatch(r'^\d{10}$', mobile):
+            raise serializers.ValidationError("Mobile number must be exactly 10 digits.")
+        return mobile
+        
     def update(self, instance, validated_data):
         user_data = validated_data.pop('user', {})
         user = instance.user

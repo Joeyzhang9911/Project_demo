@@ -11,7 +11,7 @@ from django.utils import timezone
 class UserProfile(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name='userprofile')
-    mobile = models.CharField(max_length=10, null=False, blank=False)
+    mobile = models.CharField(max_length=10, blank=True, null=True)
     organization = models.CharField(max_length=255, blank=True, null=True)
     faculty_and_major = models.CharField(max_length=255, blank=True, null=True)
     bookmarks = ListCharField(
