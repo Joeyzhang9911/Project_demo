@@ -240,8 +240,60 @@ const SignUpForm = () => {
             onClick={e => e.stopPropagation()}
           >
             <Typography variant="h6" gutterBottom>Terms and Conditions</Typography>
-            <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>
-              By using this website, you agree that your activities on the website may be recorded for the purpose of improving our services, ensuring security, and complying with legal requirements. Your data will be handled in accordance with our privacy policy. You must agree to these terms and conditions to create a profile. If you do not agree, you will not be able to register or use certain features of the website.
+            <Typography
+              variant="body2"
+              sx={{ fontSize: '0.85rem', whiteSpace: 'pre-line' }}
+            >
+            {`
+Terms and Conditions
+
+Welcome to the SDG Knowledge System. These Terms and Conditions govern your access to and use of our website and related services. 
+By registering for an account, browsing, or otherwise using the Service, you agree to be bound by these Terms. 
+If you do not agree, please do not access or use the Service.
+
+1. Eligibility & Account Registration
+You must be at least 16 years of age (or the minimum legal age in your jurisdiction) to register for and use the Service.
+When creating an account, you agree to provide accurate, current, and complete information and to update it promptly if anything changes.
+You are responsible for safeguarding your login credentials and any activity that occurs under your account. Notify us immediately if you suspect any unauthorized use.
+
+2. Data Collection & Privacy
+We collect data on your interactions with the Service—such as page views, search terms, form inputs, and session durations—to improve performance, personalize content, and support research initiatives.
+All data practices are described in our Privacy Policy, which is incorporated by reference and is a binding part of these Terms.
+Refusal to consent to mandatory data collection will prevent access to certain account-only features.
+
+3. Acceptable Use
+You agree to use the Service solely for lawful, non-commercial purposes and in compliance with all applicable laws and regulations.
+Prohibited activities include, but are not limited to:
+- Reverse engineering or decompiling any part of the Service.
+- Introducing viruses, worms, or other malicious code.
+- Harassing or abusing other users.
+- Impersonating any person or entity.
+We reserve the right to suspend or terminate any account that violates these Terms or engages in harmful conduct.
+
+4. Intellectual Property
+All content, features, and functionality of the Service—including text, graphics, logos, and software—are owned or licensed by us and are protected by copyright, trademark, and other intellectual property laws.
+You may download, print, or view content for personal, non-commercial use only. Any other use requires our prior written permission.
+
+5. Disclaimers & Limitation of Liability
+The Service is provided "as is" and "as available." We expressly disclaim all warranties, whether express or implied, including guarantees of performance, accuracy, or fitness for a particular purpose.
+We do not guarantee uninterrupted or error-free operation; nor do we warrant that the Service will be free from harmful components.
+To the fullest extent permitted by law, we shall not be liable for any direct, indirect, incidental, consequential, or punitive damages arising from your use of—or inability to use—the Service.
+
+6. Changes to Terms & Service
+We may update these Terms or modify the Service at any time. Revised Terms will be posted on our website with an updated "Last Updated" date.
+Continued use after changes implies your acceptance of the new Terms. We encourage you to review this page regularly.
+
+7. Governing Law & Dispute Resolution
+These Terms are governed by the laws of New South Wales, Australia, without regard to conflict-of-law principles.
+Any dispute arising from or related to these Terms shall be resolved first through good-faith negotiation. If unresolved, disputes may be brought before the courts of New South Wales.
+
+8. Contact Us
+For postal correspondence or general inquiries (excluding email), you may write to:
+SDG Knowledge System
+Business School, UNSW
+Sydney, NSW 2052
+Australia
+`}
             </Typography>
             <Button onClick={() => setShowTerms(false)} sx={{ mt: 2 }} variant="contained" size="small">Close</Button>
           </Box>
