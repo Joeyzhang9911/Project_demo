@@ -18,6 +18,8 @@ const SignUpForm = () => {
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [agreedTerms, setAgreedTerms] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState<string[]>([]);
 
@@ -27,7 +29,18 @@ const SignUpForm = () => {
   
   // API Call Here
   const signup = async () => {
-    const data = await apiCallPost('api/auth/pending-register/', { username, email, password1: password, password2: confirmPassword, mobile: phoneNumber }, false);
+    if (!agreedTerms) {
+      setErrorMessage(['You must agree to the Terms and Conditions to sign up.']);
+      return;
+    }
+    const data = await apiCallPost('api/auth/pending-register/', {
+      username,
+      email,
+      password1: password,
+      password2: confirmPassword,
+      mobile: phoneNumber,
+      agreed_terms: agreedTerms
+    }, false);
     if (data.token) {
       navigate('/confirmation-pin', {
         state: {
@@ -129,6 +142,26 @@ const SignUpForm = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
         <FormControlLabel
+          control={
+            <Checkbox
+              size="small"
+              checked={agreedTerms}
+              onChange={(e) => setAgreedTerms(e.target.checked)}
+            />
+          }
+          label={
+            <span style={{ fontSize: '0.75rem' }}>
+              I have read and agree to the&nbsp;
+              <span
+                style={{ color: '#1976d2', textDecoration: 'underline', cursor: 'pointer' }}
+                onClick={() => setShowTerms(true)}
+              >
+                Terms and Conditions
+              </span>
+            </span>
+          }
+        />
+        <FormControlLabel
           sx={{ m: 0, '& .MuiFormControlLabel-label': { fontSize: '0.75rem' } }}
           control={
             <Checkbox
@@ -142,7 +175,7 @@ const SignUpForm = () => {
 
         <Button
           variant='contained'
-          size='small' 
+          size='small'
           sx={{
             backgroundColor: '#000000',
             width: '85%',
@@ -151,6 +184,7 @@ const SignUpForm = () => {
             boxShadow: 'none'
           }}
           onClick={signup}
+          disabled={!agreedTerms}
         >
           Sign Up
         </Button>
@@ -190,6 +224,81 @@ const SignUpForm = () => {
         </div>
 
       </Box>
+
+      {showTerms && (
+        <Box
+          sx={{
+            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
+          }}
+          onClick={() => setShowTerms(false)}
+        >
+          <Box
+            sx={{
+              backgroundColor: 'white', padding: 3, borderRadius: 2, maxWidth: 500, maxHeight: '80vh', overflowY: 'auto'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <Typography variant="h6" gutterBottom>Terms and Conditions</Typography>
+            <Typography
+              variant="body2"
+              sx={{ fontSize: '0.85rem', whiteSpace: 'pre-line' }}
+            >
+            {`
+Terms and Conditions
+
+Welcome to the SDG Knowledge System. These Terms and Conditions govern your access to and use of our website and related services. 
+By registering for an account, browsing, or otherwise using the Service, you agree to be bound by these Terms. 
+If you do not agree, please do not access or use the Service.
+
+1. Eligibility & Account Registration
+You must be at least 16 years of age (or the minimum legal age in your jurisdiction) to register for and use the Service.
+When creating an account, you agree to provide accurate, current, and complete information and to update it promptly if anything changes.
+You are responsible for safeguarding your login credentials and any activity that occurs under your account. Notify us immediately if you suspect any unauthorized use.
+
+2. Data Collection & Privacy
+We collect data on your interactions with the Service—such as page views, search terms, form inputs, and session durations—to improve performance, personalize content, and support research initiatives.
+All data practices are described in our Privacy Policy, which is incorporated by reference and is a binding part of these Terms.
+Refusal to consent to mandatory data collection will prevent access to certain account-only features.
+
+3. Acceptable Use
+You agree to use the Service solely for lawful, non-commercial purposes and in compliance with all applicable laws and regulations.
+Prohibited activities include, but are not limited to:
+- Reverse engineering or decompiling any part of the Service.
+- Introducing viruses, worms, or other malicious code.
+- Harassing or abusing other users.
+- Impersonating any person or entity.
+We reserve the right to suspend or terminate any account that violates these Terms or engages in harmful conduct.
+
+4. Intellectual Property
+All content, features, and functionality of the Service—including text, graphics, logos, and software—are owned or licensed by us and are protected by copyright, trademark, and other intellectual property laws.
+You may download, print, or view content for personal, non-commercial use only. Any other use requires our prior written permission.
+
+5. Disclaimers & Limitation of Liability
+The Service is provided "as is" and "as available." We expressly disclaim all warranties, whether express or implied, including guarantees of performance, accuracy, or fitness for a particular purpose.
+We do not guarantee uninterrupted or error-free operation; nor do we warrant that the Service will be free from harmful components.
+To the fullest extent permitted by law, we shall not be liable for any direct, indirect, incidental, consequential, or punitive damages arising from your use of—or inability to use—the Service.
+
+6. Changes to Terms & Service
+We may update these Terms or modify the Service at any time. Revised Terms will be posted on our website with an updated "Last Updated" date.
+Continued use after changes implies your acceptance of the new Terms. We encourage you to review this page regularly.
+
+7. Governing Law & Dispute Resolution
+These Terms are governed by the laws of New South Wales, Australia, without regard to conflict-of-law principles.
+Any dispute arising from or related to these Terms shall be resolved first through good-faith negotiation. If unresolved, disputes may be brought before the courts of New South Wales.
+
+8. Contact Us
+For postal correspondence or general inquiries (excluding email), you may write to:
+SDG Knowledge System
+Business School, UNSW
+Sydney, NSW 2052
+Australia
+`}
+            </Typography>
+            <Button onClick={() => setShowTerms(false)} sx={{ mt: 2 }} variant="contained" size="small">Close</Button>
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };
