@@ -18,7 +18,6 @@ import { useEffect, useState } from 'react';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useParams } from 'react-router-dom';
-import { apiCallGet } from '../../Utilities/ApiCalls';
 import FormPermissionsModal from './FormPermissionsModal';
 import { apiCallGet, apiCallPost } from '../../Utilities/ApiCalls';
 import GoogleIcon from '@mui/icons-material/Google';
@@ -53,6 +52,7 @@ const Form = () => {
     allow_team_edit: true,
     allow_team_view: true,
     require_explicit_permissions: false,
+  });
   const [formData, setFormData] = useState<FormData | null>(null);
   const [googleDocsLoading, setGoogleDocsLoading] = useState(false);
   const [snackbar, setSnackbar] = useState<SnackbarState>({
