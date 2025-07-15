@@ -1,17 +1,12 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-<<<<<<< HEAD
 from django.contrib.auth.models import User
 from teams.models import TeamMember
-=======
->>>>>>> rqh
 from .models import SDGActionPlan
 from .serializers import SDGActionPlanSerializer
 from .google_docs_service import GoogleDocsService, OAuthRequired
 from django.db.models import Q
-<<<<<<< HEAD
 from rest_framework.permissions import BasePermission
-=======
 from django.utils import timezone
 from django.db import transaction
 from rest_framework.views import APIView
@@ -22,7 +17,6 @@ import json
 import pickle
 from google_auth_oauthlib.flow import Flow
 import os
->>>>>>> rqh
 
 # helper mixin to get the action plans of the user and their teams
 class UserActionPlanQuerysetMixin:
@@ -235,7 +229,6 @@ class SDGActionPlanDeleteView(UserActionPlanQuerysetMixin, generics.DestroyAPIVi
     def get_queryset(self):
         return self.get_user_action_plans()
 
-<<<<<<< HEAD
 
 # 新增权限管理视图
 class ActionPlanPermissionsView(generics.GenericAPIView):
@@ -423,7 +416,6 @@ class ActionPlanTeamMembersView(generics.GenericAPIView):
         } for member in team_members]
         
         return Response({'data': data}, status=status.HTTP_200_OK)
-=======
 class SDGActionPlanGoogleDocsView(APIView):
     """View for Google Docs integration"""
     def get_queryset(self):
@@ -667,4 +659,3 @@ class GoogleOAuthInitView(APIView):
                 'error': 'Failed to generate authorization URL',
                 'message': str(e)
             }, status=500)
->>>>>>> rqh
