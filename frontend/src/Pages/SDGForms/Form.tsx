@@ -45,7 +45,6 @@ interface SnackbarState {
 const Form = () => {
   const { id } = useParams();
   const [downloading, setDownloading] = useState(false);
-  const [formData, setFormData] = useState<any>(null);
   const [isOwner, setIsOwner] = useState(false);
   const [showPermissions, setShowPermissions] = useState(false);
   const [permissions, setPermissions] = useState({
@@ -227,6 +226,7 @@ const Form = () => {
                 MANAGE FORM PERMISSIONS
               </Button>
             )}
+          </Box>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Tooltip title="Sync with Google Docs" arrow slots={{ transition: Fade }}>
               <IconButton 

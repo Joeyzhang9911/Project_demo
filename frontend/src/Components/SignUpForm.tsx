@@ -33,36 +33,15 @@ const SignUpForm = () => {
       setErrorMessage(['You must agree to the Terms and Conditions to sign up.']);
       return;
     }
-    const data = await apiCallPost('api/auth/pending-register/', {
-      username,
-      email,
-      password1: password,
-      password2: confirmPassword,
-      mobile: phoneNumber,
-      agreed_terms: agreedTerms
-    }, false);
-    if (data.token) {
-      navigate('/confirmation-pin', {
-        state: {
-          username,
-          email,
-          password1: password,
-          password2: confirmPassword,
-          mobile: phoneNumber,
-          initialToken: data.token
-        }}
-      )
-    } else {
-      const errors: string[] = [];
-      for (let field in data) {
-        if (field !== 'statusCode') {
-          if (field === 'non_field_errors') {
-            errors.push(data[field][0]);
-          } else {
-            errors.push(field.toUpperCase() + ': ' + data[field][0]);
     try {
-      const data = await apiCallPost('api/auth/pending-register/', { username, email, password1: password, password2: confirmPassword, mobile: phoneNumber }, false);
-      
+      const data = await apiCallPost('api/auth/pending-register/', {
+        username,
+        email,
+        password1: password,
+        password2: confirmPassword,
+        mobile: phoneNumber,
+        agreed_terms: agreedTerms
+      }, false);
       if (data && data.token) {
         navigate('/confirmation-pin', {
           state: {
@@ -72,8 +51,8 @@ const SignUpForm = () => {
             password2: confirmPassword,
             mobile: phoneNumber,
             initialToken: data.token
-          }}
-        );
+          }
+        });
       } else {
         const errors: string[] = [];
         if (data) {
