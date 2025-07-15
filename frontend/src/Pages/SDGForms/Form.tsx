@@ -9,11 +9,8 @@ import {
   useMediaQuery,
   useTheme,
   Button,
-<<<<<<< HEAD
-=======
   Snackbar,
   Alert,
->>>>>>> rqh
 } from '@mui/material';
 import FormInfo from './FormInfo';
 import DownloadForm from '../../Components/DownloadForm';
@@ -21,10 +18,8 @@ import { useEffect, useState } from 'react';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useParams } from 'react-router-dom';
-<<<<<<< HEAD
 import { apiCallGet } from '../../Utilities/ApiCalls';
 import FormPermissionsModal from './FormPermissionsModal';
-=======
 import { apiCallGet, apiCallPost } from '../../Utilities/ApiCalls';
 import GoogleIcon from '@mui/icons-material/Google';
 
@@ -47,12 +42,10 @@ interface SnackbarState {
   message: string;
   severity: 'success' | 'error' | 'info';
 }
->>>>>>> rqh
 
 const Form = () => {
   const { id } = useParams();
   const [downloading, setDownloading] = useState(false);
-<<<<<<< HEAD
   const [formData, setFormData] = useState<any>(null);
   const [isOwner, setIsOwner] = useState(false);
   const [showPermissions, setShowPermissions] = useState(false);
@@ -60,14 +53,12 @@ const Form = () => {
     allow_team_edit: true,
     allow_team_view: true,
     require_explicit_permissions: false,
-=======
   const [formData, setFormData] = useState<FormData | null>(null);
   const [googleDocsLoading, setGoogleDocsLoading] = useState(false);
   const [snackbar, setSnackbar] = useState<SnackbarState>({
     open: false,
     message: '',
     severity: 'info',
->>>>>>> rqh
   });
 
   const theme = useTheme();
@@ -224,7 +215,6 @@ const Form = () => {
           <Typography variant={isMobile ? 'h5' : 'h4'} paddingLeft={isMobile ? 0 : '30px'}>
             SDG Knowledge Action Plan
           </Typography>
-<<<<<<< HEAD
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             {isOwner && (
               <Button
@@ -237,7 +227,6 @@ const Form = () => {
                 MANAGE FORM PERMISSIONS
               </Button>
             )}
-=======
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Tooltip title="Sync with Google Docs" arrow slots={{ transition: Fade }}>
               <IconButton 
@@ -261,7 +250,6 @@ const Form = () => {
                 )}
               </IconButton>
             </Tooltip>
->>>>>>> rqh
             <Tooltip title="Download Plan as PDF" arrow slots={{ transition: Fade }}>
               <IconButton onClick={handleFormDownload}>
                 {downloading ? (

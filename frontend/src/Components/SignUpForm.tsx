@@ -29,7 +29,6 @@ const SignUpForm = () => {
   
   // API Call Here
   const signup = async () => {
-<<<<<<< HEAD
     if (!agreedTerms) {
       setErrorMessage(['You must agree to the Terms and Conditions to sign up.']);
       return;
@@ -61,7 +60,6 @@ const SignUpForm = () => {
             errors.push(data[field][0]);
           } else {
             errors.push(field.toUpperCase() + ': ' + data[field][0]);
-=======
     try {
       const data = await apiCallPost('api/auth/pending-register/', { username, email, password1: password, password2: confirmPassword, mobile: phoneNumber }, false);
       
@@ -87,7 +85,6 @@ const SignUpForm = () => {
                 errors.push(field.toUpperCase() + ': ' + data[field][0]);
               }
             }
->>>>>>> rqh
           }
         }
         if (errors.length === 0) {

@@ -28,7 +28,6 @@ class SDGActionPlan(models.Model):
     # each action plan only belongs to one team
     team = models.ForeignKey(
         Team, on_delete=models.CASCADE, related_name='action_plans')
-<<<<<<< HEAD
 
     editors = models.ManyToManyField(
         User, related_name='editable_action_plans', blank=True)
@@ -42,7 +41,6 @@ class SDGActionPlan(models.Model):
     allow_team_view = models.BooleanField(default=True, help_text="允许团队成员查看")
     require_explicit_permissions = models.BooleanField(default=False, help_text="需要明确权限设置")
 
-=======
     
     # Google Docs integration fields
     google_doc_id = models.CharField(max_length=255, blank=True, null=True, 
@@ -53,6 +51,5 @@ class SDGActionPlan(models.Model):
                                            help_text='Whether Google Docs document has been created')
     last_sync_time = models.DateTimeField(blank=True, null=True,
                                         help_text='Last time content was synced to Google Docs')
->>>>>>> rqh
     def __str__(self):
         return f"Action Plan: {self.impact_project_name} by {self.user.username}"
