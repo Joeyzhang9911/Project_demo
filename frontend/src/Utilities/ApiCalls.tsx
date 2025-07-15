@@ -16,7 +16,12 @@ export const apiCallPost = async (path: string, body: any, isAuthed: boolean ) =
       ...data
     };
   } catch (error: any) {
-    console.log(error)
+    console.log(error);
+    return {
+      statusCode: 500,
+      error: 'Network error or server unavailable',
+      message: 'Network error or server unavailable'
+    };
   }
 };
 
@@ -36,7 +41,12 @@ export const apiCallGet = async (path: string, isAuthed: boolean, headersExtra?:
       ...data
     };
   } catch (error: any) {
-    console.log(error)
+    console.log(error);
+    return {
+      statusCode: 500,
+      error: 'Network error or server unavailable',
+      message: 'Network error or server unavailable'
+    };
   }
 };
 
@@ -56,7 +66,12 @@ export const apiCallPatch = async (path: string, body: object, isAuthed: boolean
       ...data
     };
   } catch (error: any) {
-    console.log(error)
+    console.log(error);
+    return {
+      statusCode: 500,
+      error: 'Network error or server unavailable',
+      message: 'Network error or server unavailable'
+    };
   }
 };
 
@@ -75,7 +90,12 @@ export const apiCallDelete = async (path: string, isAuthed: boolean) => {
       ...data
     };
   } catch (error: any) {
-    console.log(error)
+    console.log(error);
+    return {
+      statusCode: 500,
+      error: 'Network error or server unavailable',
+      message: 'Network error or server unavailable'
+    };
   }
 };
 
@@ -96,5 +116,10 @@ export const apiCallPut = async (path: string, body: any, isAuthed: boolean) => 
     };
   } catch (error: any) {
     console.log(error);
+    return {
+      statusCode: 500,
+      error: 'Network error or server unavailable',
+      message: 'Network error or server unavailable'
+    };
   }
 };

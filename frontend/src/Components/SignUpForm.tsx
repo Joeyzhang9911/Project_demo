@@ -29,6 +29,7 @@ const SignUpForm = () => {
   
   // API Call Here
   const signup = async () => {
+<<<<<<< HEAD
     if (!agreedTerms) {
       setErrorMessage(['You must agree to the Terms and Conditions to sign up.']);
       return;
@@ -60,10 +61,43 @@ const SignUpForm = () => {
             errors.push(data[field][0]);
           } else {
             errors.push(field.toUpperCase() + ': ' + data[field][0]);
+=======
+    try {
+      const data = await apiCallPost('api/auth/pending-register/', { username, email, password1: password, password2: confirmPassword, mobile: phoneNumber }, false);
+      
+      if (data && data.token) {
+        navigate('/confirmation-pin', {
+          state: {
+            username,
+            email,
+            password1: password,
+            password2: confirmPassword,
+            mobile: phoneNumber,
+            initialToken: data.token
+          }}
+        );
+      } else {
+        const errors: string[] = [];
+        if (data) {
+          for (let field in data) {
+            if (field !== 'statusCode') {
+              if (field === 'non_field_errors') {
+                errors.push(data[field][0]);
+              } else {
+                errors.push(field.toUpperCase() + ': ' + data[field][0]);
+              }
+            }
+>>>>>>> rqh
           }
         }
+        if (errors.length === 0) {
+          errors.push('Sign up failed. Please try again.');
+        }
+        setErrorMessage(errors);
       }
-      setErrorMessage(errors);
+    } catch (error) {
+      console.error('Sign up error:', error);
+      setErrorMessage(['An unexpected error occurred. Please try again.']);
     }
   };
 

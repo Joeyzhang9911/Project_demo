@@ -5,10 +5,16 @@ from .views import (
     SDGActionPlanRetrieveView,
     SDGActionPlanUpdateView,
     SDGActionPlanDeleteView,
+<<<<<<< HEAD
     ActionPlanPermissionsView,
     ActionPlanEditorsView,
     ActionPlanViewersView,
     ActionPlanTeamMembersView,
+=======
+    SDGActionPlanGoogleDocsView,
+    GoogleOAuthInitView,
+    GoogleOAuthCallbackView,
+>>>>>>> rqh
 )
 
 urlpatterns = [
@@ -27,6 +33,7 @@ urlpatterns = [
     # anyone can delete the plan on the team
     path('<int:id>/delete/', SDGActionPlanDeleteView.as_view(),
          name='action-plan-delete'),
+<<<<<<< HEAD
     
     # 新增权限管理路由
     # POST /api/sdg-action-plan/<int:id>/permissions/ 更新表单权限设置
@@ -41,4 +48,12 @@ urlpatterns = [
     # GET /api/sdg-action-plan/<int:id>/team-members/ 获取团队成员列表
     path('<int:id>/team-members/', ActionPlanTeamMembersView.as_view(),
          name='action-plan-team-members'),
+=======
+    path('<int:id>/google-docs/', SDGActionPlanGoogleDocsView.as_view(), name='action-plan-google-docs'),
+    
+    # OAuth endpoints
+    path('auth/google/init/', GoogleOAuthInitView.as_view(), name='google-oauth-init'),
+    path('auth/google/callback/', GoogleOAuthCallbackView.as_view(), name='google-oauth-callback'),
+>>>>>>> rqh
 ]
+
