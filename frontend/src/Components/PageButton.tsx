@@ -8,28 +8,20 @@ export enum PageButtonColour {
     Blue = '#4285F4'
 }
 
-const PageButton = ({ children, colour, textColour = 'white', startIcon, onClick, disabled }:
-  {children?: React.ReactNode, colour: PageButtonColour, textColour?: string, startIcon?: React.ReactNode, onClick: () => void, disabled?: boolean}) => {
+const PageButton = ({ children, colour, textColour = 'white', startIcon, onClick }:
+  {children?: React.ReactNode, colour: PageButtonColour, textColour?: string, startIcon?: React.ReactNode, onClick: () => void}) => {
   let variant: "contained" | "outlined" = "contained";
   if (textColour !== 'white') {
     variant = "outlined";
   }
   return (
-    <Button 
-      variant={variant} 
-      onClick={onClick} 
-      disabled={disabled}
-      sx={{
+    <Button variant={variant} onClick={onClick} sx={{
         background: colour,
         color: textColour,
         fontSize: '16px',
         borderRadius: '8px',
         textTransform: 'none',
         borderColor: 'black',
-        '&:disabled': {
-          background: '#cccccc',
-          color: '#666666'
-        }
       }}
       startIcon={startIcon}
     >

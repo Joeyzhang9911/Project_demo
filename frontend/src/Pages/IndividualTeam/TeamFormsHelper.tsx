@@ -21,24 +21,8 @@ const TeamFormsHelper = () => {
       try {
         const rawForms = await apiCallGet('api/sdg-action-plan/', true);
 
-        console.log('TeamFormsHelper API Response:', rawForms); // 调试用
-
-        // 确保 rawForms 是一个数组
-        let formsArray = [];
-        if (Array.isArray(rawForms)) {
-          formsArray = rawForms;
-        } else if (Array.isArray(rawForms.results)) {
-          formsArray = rawForms.results;
-        } else if (rawForms.results && typeof rawForms.results === 'object') {
-          formsArray = Object.values(rawForms.results).filter(item => 
-            item && typeof item === 'object' && 'id' in item
-          );
-        } else {
-          formsArray = [];
-        }
-
-        const validForms: FormData[] = formsArray.filter(
-          (item: any): item is FormData =>
+        const validForms: FormData[] = Object.values(rawForms).filter(
+          (item): item is FormData =>
             item !== null &&
             typeof item === 'object' &&
             'id' in item &&
@@ -54,7 +38,7 @@ const TeamFormsHelper = () => {
         const grouped: GroupedForms = {};
 
         detailedForms.forEach(detail => {
-          if (detail && detail.team && detail.id) {
+          if (detail.team && detail.id) {
             if (!grouped[detail.team]) {
               grouped[detail.team] = [];
             }
@@ -69,7 +53,6 @@ const TeamFormsHelper = () => {
         setGroupedForms(grouped);
       } catch (error) {
         console.error('Failed to load and group forms:', error);
-        setGroupedForms({});
       } finally {
         setLoading(false);
       }

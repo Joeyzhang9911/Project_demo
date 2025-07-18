@@ -6,6 +6,7 @@ from django_mysql.models import ListCharField
 import uuid
 from datetime import timedelta
 from django.utils import timezone
+from django.conf import settings
 
 ### User profile model
 class UserProfile(models.Model):
@@ -37,15 +38,13 @@ def save_user_profile(sender, instance, **kwargs):
 
 ### Pending user model before email is confirmed
 class PendingUser(models.Model):
-   
-    token = models.CharField(max_length=36, unique=True)
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     username = models.CharField(max_length=150)
     email = models.EmailField()
     password = models.CharField(max_length=128)
     mobile = models.CharField(max_length=10, blank=True, null=True)
     code = models.CharField(max_length=8)
     created_at = models.DateTimeField(auto_now_add=True)
-    agreed_terms = models.BooleanField(default=False)
 
     def is_expired(self):
         return timezone.now() > self.created_at + timedelta(minutes=5)
@@ -61,3 +60,17 @@ class PasswordResetRequest(models.Model):
 
     def is_expired(self):
         return timezone.now() > self.updated_at + timedelta(minutes=15)
+
+
+class UserActivity(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    activity_type = models.CharField(max_length=50)  # e.g., 'page_view', 'search', 'form_edit'
+    page = models.CharField(max_length=255, blank=True, null=True)
+    search_query = models.TextField(blank=True, null=True)
+    form_id = models.IntegerField(blank=True, null=True)
+    form_word_count = models.IntegerField(blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    duration = models.FloatField(blank=True, null=True)  # 活跃时长（秒）
+
+    def __str__(self):
+        return f"{self.user} - {self.activity_type} - {self.timestamp}"

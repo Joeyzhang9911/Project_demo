@@ -22,6 +22,7 @@ import { TeamWrapper } from './Pages/IndividualTeam/TeamWrapper';
 import SdgActionSearch from './Pages/SdgActionSearch';
 import SdgEducationSearch from './Pages/SdgEducationSearch';
 import ComingSoon from './Pages/ComingSoon';
+import UserActivityAnalytics from './Pages/UserActivityAnalytics';
 
 const clientId = '457383923915-pcoes829lbarn628vjh78r9lpqitclu7.apps.googleusercontent.com';
 
@@ -53,6 +54,7 @@ function App() {
           <Route path='/sdg-form' element={<SDGForms />} />
           <Route path='/sdg-form/:id' element={<SDGForm />} />
           <Route path='/sdg-ai-chatbot' element={<ComingSoon />} />
+          <Route path='/user-activity-analytics' element={<UserActivityAnalytics />} />
         </Routes>
       </BrowserRouter>
     </GoogleOAuthProvider>

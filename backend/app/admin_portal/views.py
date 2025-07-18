@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from teams.models import Team, TeamMember
 from teams.serializers import TeamMemberSerializer
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import BasePermission, IsAuthenticated
 from .models import EducationInteraction, ActionInteraction
 from .serializers import EducationInteractionSerializer, ActionInteractionSerializer
 from sdg_education.models import EducationDb
@@ -15,6 +15,8 @@ from django.db import models
 from .utils import time_range_filter
 from collections import Counter
 from .utils import get_sdg_name
+from rest_framework.views import APIView
+from users.models import UserActivity
 
 # Helper permission class to check is_staff or is_superuser
 class IsSiteAdmin(BasePermission):
@@ -361,4 +363,78 @@ class AdminGetSDGPlansCountView(generics.GenericAPIView):
             "recent_count": recent_count,
             "total_count": qs.count(),
             "plans": plans_list,
+        })
+
+class UserActivityAnalyticsView(APIView):
+    """
+    GET /api/admin/analytics/user-activity/?time_range=all|week|month
+
+    返回当前用户的活动分析数据
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        time_range = request.GET.get("time_range", "all")
+        user = request.user
+
+        # 时间过滤
+        from django.utils import timezone
+        from datetime import timedelta
+
+        qs = UserActivity.objects.filter(user=user)
+        now_time = timezone.now()
+        if time_range == "week":
+            qs = qs.filter(timestamp__gte=now_time - timedelta(days=7))
+        elif time_range == "month":
+            qs = qs.filter(timestamp__gte=now_time - timedelta(days=30))
+
+        # 页面活跃统计
+        page_activities = {
+            "total_visits": qs.filter(activity_type="page_view").count(),
+            "total_active_time": int(qs.filter(activity_type="page_leave").aggregate(
+                total=Sum("duration"))["total"] or 0),
+            "most_visited_pages": list(
+                qs.filter(activity_type="page_view")
+                .values("page")
+                .annotate(visit_count=Count("id"))
+                .order_by("-visit_count")[:5]
+            ),
+            "average_session_time": float(
+                (qs.filter(activity_type="page_leave").aggregate(
+                    avg=Sum("duration"))["avg"] or 0) /
+                max(qs.filter(activity_type="page_leave").count(), 1)
+            ),
+        }
+
+        # 搜索行为统计
+        search_qs = qs.filter(activity_type="search")
+        search_activities = {
+            "total_searches": search_qs.count(),
+            "search_types": [],  # 可扩展
+            "most_searched_terms": list(
+                search_qs.values("search_query")
+                .annotate(search_count=Count("id"))
+                .order_by("-search_count")[:5]
+            ),
+        }
+
+        # 表单行为统计
+        form_edit_qs = qs.filter(activity_type="form_edit")
+        form_activities = {
+            "total_form_activities": form_edit_qs.count(),
+            "form_edit_time": int(form_edit_qs.aggregate(
+                total=Sum("duration"))["total"] or 0),
+            "total_words_written": int(form_edit_qs.aggregate(
+                total=Sum("form_word_count"))["total"] or 0),
+            "most_active_forms": list(
+                form_edit_qs.values("form_id")
+                .annotate(activity_count=Count("id"))
+                .order_by("-activity_count")[:5]
+            ),
+        }
+
+        return Response({
+            "page_activities": page_activities,
+            "search_activities": search_activities,
+            "form_activities": form_activities,
         })

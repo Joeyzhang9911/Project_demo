@@ -21,9 +21,9 @@ import {
   Stack,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
-import { apiCallGet } from '../Utilities/ApiCalls'
 import Page from '../Components/Page'
 import SearchSDGPlanModal from '../Components/SearchSDGPlanModal';
+import {apiCallGet, apiCallPost} from '../Utilities/ApiCalls';
 
 
 interface EducationRow {
@@ -143,6 +143,10 @@ const SDG_OPTIONS = SDG_TITLES.map((title, idx) => ({
   label: `SDG ${idx + 1} - ${title}`
 }));
 
+const getTrendingEducationSearches = async () => {
+  const trending = await apiCallPost('/api/admin/analytics/educations/top/', {}, false);
+  return Object.values(trending).slice(0, 4);
+}
 
   export default function SdgEducationearch() {
     // filters
@@ -196,12 +200,27 @@ const SDG_OPTIONS = SDG_TITLES.map((title, idx) => ({
       fetchData()
       // eslint-disable-next-line
     }, [page, perPage])
+
+    useEffect(() => {
+      // 页面加载时获取一次
+      getTrendingEducationSearches().then(setTrendingSearches);
+    }, []);
   
     // When hitting “Search”
     const handleSearch = () => {
       setPage(1)
       fetchData()
     }
+
+    const [trendingSearches, setTrendingSearches] = useState<any[]>([]);
+    const [isFocused, setIsFocused] = useState(false);
+
+    const handleFocus = () => {
+      setIsFocused(true);
+      if (trendingSearches.length === 0) {
+        getTrendingEducationSearches().then(setTrendingSearches);
+      }
+    };
   
     return (
       <Page>
@@ -218,13 +237,46 @@ const SDG_OPTIONS = SDG_TITLES.map((title, idx) => ({
               Search Keyword
             </Typography>
             <Box display="flex" alignItems="center" mb={2}>
-              <TextField
-                size="small"
-                fullWidth
-                placeholder="Search..."
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
+              <Box sx={{ position: 'relative' }}>
+                <TextField
+                  size="small"
+                  fullWidth
+                  placeholder="Search..."
+                  value={searchText}
+                  onChange={e => setSearchText(e.target.value)}
+                  onFocus={handleFocus}
+                  onBlur={() => setIsFocused(false)}
+                />
+                {isFocused && trendingSearches.length > 0 && (
+                  <Box sx={{
+                    background: 'white',
+                    boxShadow: 2,
+                    borderRadius: 2,
+                    mt: 1,
+                    p: 2,
+                    width: '100%',
+                    zIndex: 10,
+                    position: 'absolute'
+                  }}>
+                    {trendingSearches.map((item, idx) => (
+                      <Box
+                        key={idx}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          p: 1,
+                          cursor: 'pointer',
+                          '&:hover': { background: '#f5f5f5' }
+                        }}
+                        onMouseDown={() => setSearchText(item.educationName || item.title)}
+                      >
+                        <SearchIcon sx={{ color: 'green', mr: 1 }} />
+                        <Typography>{item.educationName || item.title}</Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+              </Box>
               <Button onClick={handleSearch}>
                 <SearchIcon />
               </Button>

@@ -1,13 +1,13 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import UserProfile, PendingUser
+from .models import UserActivity
 import re
 
 
 class UserSerializer(serializers.ModelSerializer):
     mobile = serializers.CharField(
-        source='userprofile.mobile', allow_blank=True, allow_null=True
-    )
+        source='userprofile.mobile', allow_blank=True)
 
     class Meta:
         model = User
@@ -19,11 +19,10 @@ class RegisterSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True, required=True)
     password2 = serializers.CharField(write_only=True, required=True)
     mobile = serializers.CharField(required=False, allow_blank=True)
-    agreed_terms = serializers.BooleanField(write_only=True, required=True)
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2', 'mobile', 'agreed_terms')
+        fields = ('username', 'email', 'password1', 'password2', 'mobile')
 
     # Checks for password matching and duplicate username/email/mobile entries to database
     def validate(self, attrs):
@@ -44,9 +43,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             if UserProfile.objects.filter(mobile=attrs['mobile']).exists():
                 raise serializers.ValidationError(
                     "Mobile number already in use.")
-
-        if not attrs.get('agreed_terms', False):
-            raise serializers.ValidationError("You must agree to the Terms and Conditions.")
 
         return attrs
 
@@ -134,5 +130,12 @@ class ProfileSerializer(serializers.ModelSerializer):
         return instance
 
 class ConfirmPasswordResetSerializer(serializers.Serializer):
-    token = serializers.CharField()
+    token = serializers.UUIDField()
     new_password = serializers.CharField(write_only=True)
+
+from .models import UserActivity
+
+class UserActivitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserActivity
+        fields = '__all__'

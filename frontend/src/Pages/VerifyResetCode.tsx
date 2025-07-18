@@ -53,45 +53,34 @@ export default function VerifyResetCode() {
   const seconds = String(timer % 60).padStart(2, '0')
 
   const handleResend = async () => {
-    setErrorMessage('');
-    try {
-      const res = await apiCallPost(
-        'api/auth/password-reset/request/',
-        { email },
-        false
-      );
-      if (res && res.token) {
-        setToken(res.token);
-        setAlertSeverity('info');
-        setErrorMessage('New code sent—check your inbox.');
-        setTimer(15 * 60);
-      } else {
-        setErrorMessage(res?.error || 'Unable to resend code.');
-      }
-    } catch (error) {
-      console.error('Resend code error:', error);
-      setErrorMessage('An unexpected error occurred. Please try again.');
+    setErrorMessage('')
+    const res = await apiCallPost(
+      'api/auth/password-reset/request/',
+      { email },
+      false
+    )
+    if (res.token) {
+      setToken(res.token)
+      setAlertSeverity('info')
+      setErrorMessage('New code sent—check your inbox.')
+      setTimer(15 * 60)
+    } else {
+      setErrorMessage(res.error || 'Unable to resend code.')
     }
   }
 
   const handleSubmit = async () => {
-    setErrorMessage('');
-    try {
-      const res = await apiCallPost(
-        'api/auth/password-reset/verify/',
-        { token, code },
-        false
-      );
-      if (res && res.message === 'Code valid.') {
-        navigate('/forgot-password/reset', { state: { email, token, code } });
-      } else {
-        setAlertSeverity('error');
-        setErrorMessage(res?.error || 'Invalid or expired code.');
-      }
-    } catch (error) {
-      console.error('Submit code error:', error);
-      setAlertSeverity('error');
-      setErrorMessage('An unexpected error occurred. Please try again.');
+    setErrorMessage('')
+    const res = await apiCallPost(
+      'api/auth/password-reset/verify/',
+      { token, code },
+      false
+    )
+    if (res.message === 'Code valid.') {
+      navigate('/forgot-password/reset', { state: { email, token, code } })
+    } else {
+      setAlertSeverity('error')
+      setErrorMessage(res.error || 'Invalid or expired code.')
     }
   }
 

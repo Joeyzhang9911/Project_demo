@@ -24,8 +24,9 @@ import {
   ToggleButtonGroup,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
-import { apiCallGet } from '../Utilities/ApiCalls'
+import { apiCallGet, apiCallPost} from '../Utilities/ApiCalls'
 import Page from '../Components/Page'
+import { trackSearch } from '../Utilities/TrackActivity'
 import SearchSDGPlanModal from '../Components/SearchSDGPlanModal';
 
 
@@ -46,7 +47,7 @@ interface ActionRow {
 
 // 2) Options for filters
 const SDG_TITLES = [
-  "No Poverty",
+  "No Poverty", 
   "Zero Hunger",
   "Good Health",
   "Quality Education",
@@ -160,7 +161,23 @@ export default function SdgActionSearch() {
   const handleSearch = () => {
     setPage(1)
     fetchData()
+    trackSearch("SdgActionSearch", searchText);
   }
+
+  const [trendingSearches, setTrendingSearches] = useState<any[]>([]);
+  const [isFocused, setIsFocused] = useState(false);
+
+  const getTrendingActionSearches = async () => {
+    const trending = await apiCallPost('/api/admin/analytics/actions/top/', {}, false);
+    return Object.values(trending).slice(0, 2);
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    if (trendingSearches.length === 0) {
+      getTrendingActionSearches().then(setTrendingSearches);
+    }
+  };
 
   return (
     <Page>
@@ -176,14 +193,47 @@ export default function SdgActionSearch() {
           >
             Search Keyword
           </Typography>          <Box display="flex" alignItems="center" mb={2}>
-            <TextField
-              label="Search actions"
-              size="small"
-              fullWidth
-              placeholder="Search..."
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-            />
+            <Box sx={{ position: 'relative' }}>
+              <TextField
+                label="Search actions"
+                size="small"
+                fullWidth
+                placeholder="Search actions"
+                value={searchText || ''}
+                onChange={e => setSearchText(e.target.value)}
+                onFocus={handleFocus}
+                onBlur={() => setIsFocused(false)}
+              />
+              {isFocused && trendingSearches.length > 0 && (
+                <Box sx={{
+                  background: 'white',
+                  boxShadow: 2,
+                  borderRadius: 2,
+                  mt: 1,
+                  p: 2,
+                  width: '100%',
+                  zIndex: 10,
+                  position: 'absolute'
+                }}>
+                  {trendingSearches.map((item, idx) => (
+                    <Box
+                      key={idx}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        p: 1,
+                        cursor: 'pointer',
+                        '&:hover': { background: '#f5f5f5' }
+                      }}
+                      onMouseDown={() => setSearchText(item.actionName || item.title)}
+                    >
+                      <SearchIcon sx={{ color: 'green', mr: 1 }} />
+                      <Typography>{item.actionName || item.title}</Typography>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </Box>
             <Button onClick={handleSearch} aria-label="Search">
               <SearchIcon />
             </Button>

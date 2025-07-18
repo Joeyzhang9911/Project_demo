@@ -75,7 +75,11 @@ function ResponsiveAppBar() {
     { name: 'SDG EDUCATIONS', path: '/sdg-education' },
     { name: 'SDG ACTIONS', path: '/sdg-action' },
     { name: 'SDG AI CHATBOT', path: '/sdg-ai-chatbot' },
-    ...(loggedIn ? [{ name: 'SDG FORM', path: '/sdg-form' }] : []),
+    //{ name: 'SEARCH KEYWORD', path: '/search'},
+    ...(loggedIn ? [
+      { name: 'SDG FORM', path: '/sdg-form' },
+      { name: 'USER ACTIVITY', path: '/user-activity-analytics' }
+    ] : []),
     ...(adminStatus ? [{ name: 'ADMIN PORTAL', path: '/admin-portal' }] : [])
   ];
 

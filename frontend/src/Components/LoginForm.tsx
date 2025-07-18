@@ -22,23 +22,16 @@ const LoginForm = () => {
 
   const { handleGoogleLoginSuccess, handleGoogleLoginError } = useGoogleLogin();
 
-
   const login = async () => {
-    try {
-      const data = await apiCallPost('api/auth/login/', { username, password }, false);
-      
-      if (data && data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('url', getUrl());
-        localStorage.setItem('token-expiry', data.expiry);
-        localStorage.setItem('userDetails', JSON.stringify(data.user));
-        navigate('/');
-      } else {
-        setErrorMessage(data?.error || data?.message || 'Login failed. Please try again.');
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      setErrorMessage('An unexpected error occurred. Please try again.');
+    const data = await apiCallPost('api/auth/login/', { username, password }, false);
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('url', getUrl());
+      localStorage.setItem('token-expiry', data.expiry)
+      localStorage.setItem('userDetails', JSON.stringify(data.user));
+      navigate('/');
+    } else {
+      setErrorMessage(data.error)
     }
   }
 

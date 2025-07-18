@@ -9,17 +9,13 @@ export const useGoogleLogin = () => {
   const handleGoogleLoginSuccess = async (credentialResponse: any) => {
     try {
       const data = await apiCallPost('api/auth/google-login/', { id_token: credentialResponse.credential }, false);
-      if (data && data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('userDetails', JSON.stringify(data.user));
-        localStorage.setItem('url', getUrl());
-        localStorage.setItem('token-expiry', data.expiry);
-        navigate('/');
-      } else {
-        console.error('Google login failed:', data?.error || 'No token received');
-      }
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userDetails', JSON.stringify(data.user));
+      localStorage.setItem('url', getUrl());
+      localStorage.setItem('token-expiry', data.expiry)
+      navigate('/');
     } catch (error) {
-      console.error('Google login error:', error);
+      console.log(error);
     }
   };
 

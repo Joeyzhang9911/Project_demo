@@ -21,6 +21,9 @@ from admin_portal.models import EducationInteraction, ActionInteraction
 from django.db import transaction
 import uuid
 from django.contrib.auth.hashers import make_password
+from rest_framework import viewsets
+from .models import UserActivity
+from .serializers import UserActivitySerializer
 
 
 ### Function to initially register users into a pending user model before they are email verified
@@ -47,8 +50,7 @@ class PendingRegisterView(generics.GenericAPIView):
             password=make_password(serializer.validated_data['password1']),
             mobile=serializer.validated_data.get('mobile', ''),
             code=code,
-            token=str(token),
-            agreed_terms=serializer.validated_data['agreed_terms']
+            token=token
         )
 
         #Email code to user for email verification
@@ -67,28 +69,24 @@ class RegisterView(generics.GenericAPIView, KnoxLoginView):
     def post(self, request):
         token = request.data.get("token")
         code = request.data.get("code")
-        print("Received token:", token, "code:", code)
 
+        #Error checks
         if not token or not code:
-            print("Missing token or code")
             return Response({"error": "Token and code are required."}, status=status.HTTP_400_BAD_REQUEST)
 
         if not PendingUser.objects.filter(token=token).exists():
-            print("PendingUser not found")
             return Response({"error": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
 
+        #Get token from pending user object
         pending_user = PendingUser.objects.get(token=token)
 
         if pending_user.is_expired():
-            print("PendingUser expired")
             pending_user.delete()
             return Response({"error": "Verification code has expired."}, status=status.HTTP_400_BAD_REQUEST)
 
         if pending_user.code != code:
-            print("Code mismatch")
             return Response({"error": "Incorrect verification code."}, status=status.HTTP_400_BAD_REQUEST)
 
-        print("Verification passed")
         # Create actual user and user profile
         user = User.objects.create_user(
             username=pending_user.username,
@@ -110,9 +108,6 @@ class RegisterView(generics.GenericAPIView, KnoxLoginView):
         knox_response = super().post(request)
         token = knox_response.data.get("token")
         expiry = knox_response.data.get("expiry")
-
-        if not token or not expiry:
-            return Response({"error": "Token or expiry is missing in the response."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({
             "message": "User registered and verified successfully.",
@@ -142,9 +137,6 @@ class LoginView(KnoxLoginView):
         login(request, user)
 
         knox_response = super().post(request, format=None)
-
-        if not knox_response.data.get("token") or not knox_response.data.get("expiry"):
-            return Response({"error": "Token or expiry is missing in the response."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({
             "token": knox_response.data.get("token"),
@@ -288,9 +280,6 @@ class GoogleLoginView(generics.GenericAPIView, KnoxLoginView):
             knox_response = super().post(request, format=None)
             token = knox_response.data.get("token")
             expiry = knox_response.data.get("expiry")
-
-            if not token or not expiry:
-                return Response({"error": "Token or expiry is missing in the response."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             return Response({
                 "user": {
@@ -442,11 +431,11 @@ class RequestPasswordResetView(generics.GenericAPIView):
                 user=user, code=code)
             send_password_reset_email(email, code)
             return Response({
-                "message": "If that email is registered, you'll receive a reset code.",
+                "message": "If that email is registered, you’ll receive a reset code.",
                 "token": str(passwordRR.token)
             }, status=status.HTTP_200_OK)
 
-        return Response({"message": "If that email is registered, you'll receive a reset code."},
+        return Response({"message": "If that email is registered, you’ll receive a reset code."},
                         status=status.HTTP_200_OK)
 
 
@@ -506,3 +495,14 @@ class ConfirmPasswordResetView(generics.GenericAPIView):
 
         return Response({"message": "Password has been reset."},
                         status=status.HTTP_200_OK)
+
+class UserActivityViewSet(viewsets.ModelViewSet):
+    queryset = UserActivity.objects.all()
+    serializer_class = UserActivitySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return UserActivity.objects.filter(user=self.request.user).order_by('-timestamp')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

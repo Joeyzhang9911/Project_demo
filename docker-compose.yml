@@ -1,3 +1,4 @@
+ 
 version: '3.8'
 services:
   db:
@@ -8,7 +9,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD:-3900banana}
       MYSQL_DATABASE: ${DATABASE_NAME:-sdgdb}
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -36,8 +37,6 @@ services:
       DATABASE_USER: ${DATABASE_USER:-root}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-3900banana}
       DEBUG: "True"
-      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-hohx auae gpkv fwxq}
-      SITE_URL: ${SITE_URL:-http://localhost:3000}
     ports:
       - "8000:8000"
     volumes:

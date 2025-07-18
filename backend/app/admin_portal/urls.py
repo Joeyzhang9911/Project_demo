@@ -16,6 +16,7 @@ from .views import (
     TopActionSDGsView,
     AdminGetSDGPlansView,
     AdminGetSDGPlansCountView,
+    UserActivityAnalyticsView,
 )
 
 urlpatterns = [
@@ -50,4 +51,6 @@ urlpatterns = [
     path("sdg-plans/", AdminGetSDGPlansView.as_view(), name="allSDGPlans"),
     path("sdg-plans/count/",
          AdminGetSDGPlansCountView.as_view(), name="allSDGPlansCount"),
+    path("analytics/user-activity/", UserActivityAnalyticsView.as_view(),
+         name="userActivityAnalytics"),
 ]

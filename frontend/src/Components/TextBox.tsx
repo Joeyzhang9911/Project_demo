@@ -1,10 +1,9 @@
 import SearchIcon from '@mui/icons-material/Search';
 import { Box, InputBase, Paper } from '@mui/material';
 
-const TextBox = ({ onChange, placeholder, disableIcon, children, value, onBlur, onFocus, onKeyDown, disableWidthChange }:
-  {onChange: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> | undefined, placeholder: string, disableIcon?: boolean,
-    children?: React.ReactNode, value?: string, onBlur?: () => void, onFocus?: () => void, 
-    onKeyDown?: React.KeyboardEventHandler<HTMLInputElement | HTMLTextAreaElement>, disableWidthChange?: boolean
+const TextBox = ({ onChange, placeholder, disableIcon, children, value, onBlur, onFocus, disableWidthChange }:
+  {onChange: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> | undefined, placeholder: string, disableIcon?: boolean
+    children?: React.ReactNode, value?: string, onBlur?: () => void, onFocus?: () => void, disableWidthChange?: boolean
   }) => {
   return (
     <Box sx={{
@@ -36,7 +35,6 @@ const TextBox = ({ onChange, placeholder, disableIcon, children, value, onBlur, 
           value={value}
           onBlur={onBlur}
           onFocus={onFocus}
-          onKeyDown={onKeyDown}
         />
         {children}
       </Paper>

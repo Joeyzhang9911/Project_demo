@@ -32,43 +32,29 @@ const ConfirmationPin = () => {
 
   // Sends an API Call again and makes the last sent code invalid. Triggers when user presses resend code.
   const resendCode = async () => {
-    try {
-      const data = await apiCallPost('api/auth/pending-register/', { username, email, password1, password2, mobile }, false);
-      if (data && data.token) {
-        setPendingUserToken(data.token);
-        setAlertSeverity('info');
-        setErrorMessage('Verification code resent. Please check your email.');
-      } else {
-        console.log(data?.error || 'Failed to resend code');
-        setAlertSeverity('error');
-        setErrorMessage('Failed to resend verification code. Please try again.');
-      }
-    } catch (error) {
-      console.error('Resend code error:', error);
-      setAlertSeverity('error');
-      setErrorMessage('An unexpected error occurred. Please try again.');
+    const data = await apiCallPost('api/auth/pending-register/', { username, email, password1, password2, mobile }, false);
+    if (data.token) {
+      setPendingUserToken(data.token)
+      setAlertSeverity('info');
+      setErrorMessage('Verification code resent. Please check your email.')
+    } else {
+      console.log(data.error)
     }
   }
 
   // API Call - checks if the code is valid and if so, will store the token and userDetails in localStorage. 
   const verifyPin = async () => {
-    try {
-      const tokenToUse = pendingUserToken || initialToken;
-      const data = await apiCallPost('api/auth/register/', { token: tokenToUse, code: pin }, false);
-      if (data && data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('url', getUrl());
-        localStorage.setItem('token-expiry', data.expiry);
-        localStorage.setItem('userDetails', JSON.stringify(data.user));
-        navigate('/');
-      } else {
-        setAlertSeverity('error');
-        setErrorMessage('Invalid or expired verification code.');
-      }
-    } catch (error) {
-      console.error('Verify pin error:', error);
+    const tokenToUse = pendingUserToken || initialToken;
+    const data = await apiCallPost('api/auth/register/', { token: tokenToUse, code: pin }, false);
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('url', getUrl());
+      localStorage.setItem('token-expiry', data.expiry)
+      localStorage.setItem('userDetails', JSON.stringify(data.user));
+      navigate('/');
+    } else {
       setAlertSeverity('error');
-      setErrorMessage('An unexpected error occurred. Please try again.');
+      setErrorMessage('Invalid or expired verification code.');
     }
   }
 

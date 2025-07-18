@@ -18,6 +18,8 @@ from .views import (
     VerifyResetCodeView,
     ConfirmPasswordResetView,
 )
+from .views import UserActivityViewSet
+from rest_framework.routers import DefaultRouter
 
 urlpatterns = [
     path('pending-register/', PendingRegisterView.as_view(), name='pendingRegister'),
@@ -48,3 +50,8 @@ urlpatterns = [
     path('password-reset/confirm/',  ConfirmPasswordResetView.as_view(),
          name='passwordResetConfirm'),
 ]
+
+router = DefaultRouter()
+router.register(r'activity', UserActivityViewSet, basename='user-activity')
+
+urlpatterns += router.urls
