@@ -34,4 +34,5 @@ urlpatterns = [
     path('api/sdg-action-plan/', include('sdg_action_plan.urls')),
     path('api/sdg-actions/', include('sdg_actions.urls')),
     path('api/sdg-education/', include('sdg_education.urls')),
+    path('api/sdg_keywords/', include('sdg_keywords.urls')), 
 ]

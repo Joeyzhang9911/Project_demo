@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'sdg_action_plan',
     'sdg_actions',
     'sdg_education',
+    'sdg_keywords',
     'sdg_targets',
     'users',
     'teams',

@@ -74,6 +74,7 @@ function ResponsiveAppBar() {
   const featurePages = [
     { name: 'SDG EDUCATIONS', path: '/sdg-education' },
     { name: 'SDG ACTIONS', path: '/sdg-action' },
+    { name: 'SDG KEYWORDS', path: '/sdg-keywords' },
     { name: 'SDG AI CHATBOT', path: '/sdg-ai-chatbot' },
     ...(loggedIn ? [{ name: 'SDG FORM', path: '/sdg-form' }] : []),
     ...(adminStatus ? [{ name: 'ADMIN PORTAL', path: '/admin-portal' }] : [])
