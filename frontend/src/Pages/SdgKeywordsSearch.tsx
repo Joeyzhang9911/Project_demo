@@ -35,10 +35,19 @@ const SdgKeywordsSearch: React.FC = () => {
       params.append('page', String(page));
       params.append('ordering', 'keyword');
       const res = await apiCallGet(`/api/sdg_keywords/keywords/?${params.toString()}`, false);
-      if (res.statusCode === 200) {
-        setResults(res.results || res); // 兼容分页和非分页
-        setCount(res.count || (res.results ? res.results.length : 0));
+
+      // 兼容分页和非分页，且保证results一定是数组
+      let data: KeywordRow[] = [];
+      let total = 0;
+      if (Array.isArray(res)) {
+        data = res;
+        total = res.length;
+      } else if (res && Array.isArray(res.results)) {
+        data = res.results;
+        total = res.count || res.results.length;
       }
+      setResults(data);
+      setCount(total);
     };
     fetchData();
   }, [searchText, page]);

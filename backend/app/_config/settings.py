@@ -99,8 +99,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.environ.get('DATABASE_NAME', 'sdgdb'),
-        'USER': os.environ.get('DATABASE_USER', 'root'),
-        'PASSWORD': os.environ.get('DATABASE_PASSWORD', '3900banana'),
+        # 'USER': os.environ.get('DATABASE_USER', 'root'),
+        'USER': os.environ.get('DATABASE_USER', 'sdg_admin'),
+        # 'PASSWORD': os.environ.get('DATABASE_PASSWORD', '3900banana'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', 'StrongPassword123!'),
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '3306'),
     }
@@ -181,6 +183,8 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
     ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
 }
 
 CORS_ALLOWED_ORIGINS = [
