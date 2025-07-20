@@ -5,8 +5,9 @@ import ListItemText from '@mui/material/ListItemText';
 import SearchIcon from '@mui/icons-material/Search';
 import HistoryIcon from '@mui/icons-material/History';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import Chip from '@mui/material/Chip';
 
-const TypedSearchSuggestion = ({ search, iconType, onClick, isLast }: { search: string, iconType: string, onClick: () => void, isLast?: Boolean }) => {
+const TypedSearchSuggestion = ({ search, iconType, onClick, isLast, type }: { search: string, iconType: string, onClick: () => void, isLast?: Boolean, type?: string }) => {
 
   const getIcon = () => {
     switch (iconType) {
@@ -35,6 +36,7 @@ const TypedSearchSuggestion = ({ search, iconType, onClick, isLast }: { search: 
           {getIcon()}
         </ListItemIcon>
         <ListItemText primary={search} />
+        {type && <Chip label={type} size="small" sx={{ ml: 1, textTransform: 'capitalize' }} />}
       </ListItemButton>
     </List>
   )

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 
-const CHATBOT_URL = 'https://chatgpt.com/g/g-fbPWNIe8s-sdg-expert-chatbot'; // 替换为你的ChatGPT定制Bot链接
+const CHATBOT_URL = 'https://chatgpt.com/g/g-fbPWNIe8s-sdg-expert-chatbot'; 
 
 const ComingSoon: React.FC = () => {
   useEffect(() => {

@@ -211,6 +211,7 @@ const SearchKeyword = () => {
                       iconType='trending' 
                       onClick={() => {setSelectedPlan(search)}}
                       isLast={index === trendingSearches.length - 1} 
+                      type={search.type}
                     />
                   ))}
                 </Box>
@@ -226,6 +227,7 @@ const SearchKeyword = () => {
                     search={search.title || search.actions} 
                     iconType='search' 
                     onClick={() => {setSelectedPlan(search)}}
+                    type={search.type}
                   />
                 ))}
               </Box>
